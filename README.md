@@ -79,6 +79,11 @@ ant uninstall boot up test
 
 Commit your changes. Now you can run this project on any other machine.
 
+## TODO
+
+* Create mirror repos
+* Add custom licenses
+* Add custom images
 
 # Building Docker image with customized Command Central server
 
@@ -87,9 +92,20 @@ Before you start ensure you have installed [Docker](https://www.docker.com/produ
 To build customized docker container run:
 
 ```bash
-docker-compose up -d
-open https://localhost:8091/
+docker-compose up -d cc
 ```
+Successful execution will end with something like this
+
+```bash
+BUILD SUCCESSFUL
+Total time: 1 minute 21 seconds
+ ---> d17f77f1cfcb
+Removing intermediate container 6ab350c69242
+Successfully built d17f77f1cfcb
+Creating sagdevopsccserver_cc_1
+```
+
+Open https://localhost:8091/
 
 To verify successful build run:
 
@@ -97,8 +113,28 @@ To verify successful build run:
 docker-compose run --rm test 
 ```
 
+NOTE: it may take few minutes to complete, depending on the network speed
+
+The successful result would look like this
+
+```bash
+[au:antunit] Target: test-repos-fixes-listing took 1.082 sec
+[au:antunit] Target: test-client took 0.181 sec
+[au:antunit] Target: test-repos-prods took 1.057 sec
+[au:antunit] Target: test-repos-prods-listing took 111.189 sec
+[au:antunit] Target: test-repos-fixes took 1.065 sec
+
+BUILD SUCCESSFUL
+Total time: 1 minute 56 seconds
+```
+
 To cleanup running containers run:
 
 ```bash
 docker-compose down
+```
+Now you can use the docker image you've built in any other project
+
+```bash
+docker run --name mycc -d -p 8091:8091 mycc:9.12
 ```
