@@ -10,7 +10,7 @@ services:
       - "8090:8090"
       - "8091:8091"
 
-  unit:
+  test:
     image: sagdevops/cli:9.12
     environment: 
       CC_SERVER: cc
