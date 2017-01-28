@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<project xmlns="antlib:org.apache.tools.ant" basedir="." default="up" >
+	<import file="antcc/main.xml" />
+	
+	<!-- add custom targets here -->
+
+</project>

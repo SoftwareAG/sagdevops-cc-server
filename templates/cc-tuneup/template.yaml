@@ -1,0 +1,35 @@
+alias: cc-tuneup
+description: Tune up Command Central
+version: 0.1
+changes:
+  - 0.1 Timeouts, pool sizes
+
+environments:
+  default:
+    com.softwareag.platform.management.client.template.composite.node.check.online.poll.timeout.miliseconds: 2400000
+    com.softwareag.platform.management.client.template.composite.restart.online.status.poll.timeout.miliseconds: 2400000
+    com.softwareag.platform.management.job.thread.pool.size: 40
+  
+
+layers:
+  cce:
+    templates:
+      - cc-tuneup
+
+templates:
+  cc-tuneup:
+    products:
+      CCE:
+        default:
+          configuration:
+            OSGI-CCE:              
+              COMMON-SYSPROPS:
+                COMMON-SYSPROPS: |  # system properties
+                  com.softwareag.platform.management.client.template.composite.node.check.online.poll.timeout.miliseconds=${com.softwareag.platform.management.client.template.composite.node.check.online.poll.timeout.miliseconds}
+                  com.softwareag.platform.management.job.thread.pool.size=${com.softwareag.platform.management.job.thread.pool.size}
+                  com.softwareag.platform.management.client.template.composite.restart.online.status.poll.timeout.miliseconds=${com.softwareag.platform.management.client.template.composite.restart.online.status.poll.timeout.miliseconds}
+                    
+provision:
+  default:
+    cce:  
+      - local

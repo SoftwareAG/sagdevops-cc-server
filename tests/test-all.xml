@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<project xmlns="antlib:org.apache.tools.ant" xmlns:au="antlib:org.apache.ant.antunit" basedir="..">
+
+	<import file="../build.xml" />
+	
+	<target name="test-client" depends="sagenvInit">
+	    <!-- example loading command output into a property -->
+		<cc command="list inventory products local CCE properties=product.id includeHeaders=false" format="csv" outputproperty="cce.id" />
+
+		<!-- and asserting property value -->
+ 		<au:assertTrue message="Bootstrap failed!">
+			<equals arg1="${cce.id}" arg2="CCE" />
+		</au:assertTrue>
+	</target>
+	
+	<target name="test-repos-prods" depends="sagenvInit" description="Verify SAG product repositories">
+		<!-- example of saving command output into a file and asserting value in this file -->
+		<cc command="list repository products" expectedvalues="webMethods-9.12" format="csv" output="build/logs/product-repos.csv"/>
+	</target>
+
+	<target name="test-repos-prods-listing" depends="sagenvInit" description="Verify SAG repositories">
+		<cc command="list repository products content webMethods-9.12" expectedvalues="SPM" format="csv" output="build/logs/fixes.csv" />
+	</target>
+
+	<target name="test-repos-fixes" depends="sagenvInit" description="Verify SAG fix repositories">
+		<cc command="list repository fixes" expectedvalues="Empower" format="csv" output="build/logs/fix-repos.csv" />
+	</target>
+
+	<target name="test-repos-fixes-listing" depends="sagenvInit" description="Verify SAG repositories">
+		<cc command="list repository fixes content Empower" expectedvalues="SPM" format="csv" output="build/logs/fixes.csv" />
+	</target>
+	
+</project>
