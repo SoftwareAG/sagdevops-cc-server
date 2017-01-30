@@ -14,19 +14,18 @@
 	</target>
 	
 	<target name="test-repos-prods" depends="sagenvInit" description="Verify SAG product repositories">
-		<!-- example of saving command output into a file and asserting value in this file -->
 		<cc command="list repository products" expectedvalues="webMethods-9.12" format="csv" output="build/logs/product-repos.csv"/>
 	</target>
 
-	<target name="test-repos-prods-listing" depends="sagenvInit" description="Verify SAG repositories">
-		<cc command="list repository products content webMethods-9.12" expectedvalues="SPM" format="csv" output="build/logs/products.csv" />
+	<target name="test-repos-prods-listing" depends="sagenvInit" description="Verify SAG product repository listing">
+		<cc command="list repository products content webMethods-9.12" expectedvalues="SPM" format="csv" output="build/logs/products.csv" wait="240" />
 	</target>
 
 	<target name="test-repos-fixes" depends="sagenvInit" description="Verify SAG fix repositories">
 		<cc command="list repository fixes" expectedvalues="Empower" format="csv" output="build/logs/fix-repos.csv" />
 	</target>
 
-	<target name="test-repos-fixes-listing" depends="sagenvInit" description="Verify SAG repositories">
+	<target name="test-repos-fixes-listing" depends="sagenvInit" description="Verify SAG fix repository listing">
 		<cc command="list repository fixes content Empower" expectedvalues="SPM" format="csv" output="build/logs/fixes.csv" />
 	</target>
 	

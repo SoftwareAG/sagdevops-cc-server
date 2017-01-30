@@ -8,13 +8,22 @@ This project automates Command Central setup
 
 To get started fork this project as you will need to customize it.
 
+Then run git submodule initialization procedure to pull antcc library
+
+```bash
+git submodule init
+git submodule update
+```
+
+Verify that your _antcc_ folder is not empty.
+
 ## How to bootstrap Command Central server
 
 Download the latest Command Central bootstrap installer from 
 [Empower](https://empower.softwareag.com/Products/DownloadProducts/sdc/default.asp) 
 and save it under user's  ~/Downloads folder.
 
-Edit [bootstrap .properties](bootstrap/default.properties) and uncomment the following property
+Edit [bootstrap/default.properties](bootstrap/default.properties) and uncomment the following property
 
 ```
 accept.license=true
@@ -54,7 +63,7 @@ Default configuration includes:
 You will need [Empower](https://empower.softwareag.com/) credentials 
 with permissions to download products and fixes.
 
-Edit [default env.properties](environments/default/env.properties) file as set the following properties
+Edit [environments/default/env.properties](environments/default/env.properties) file as set the following properties
 
 * empower.username=YOUR_EMPOWER_USERNAME
 * empower.password=YOUR_PASSWORD
