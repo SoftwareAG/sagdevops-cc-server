@@ -70,6 +70,11 @@ Edit [environments/default/env.properties](environments/default/env.properties) 
 
 Run configuration task
 
+Add products images under images/products
+Add fix images under images/fixes
+Add license keys under licenses/<platform>/
+
+
 ```bash
 ant up
 ```
@@ -88,20 +93,16 @@ ant uninstall boot up test
 
 Commit your changes. Now you can run this project on any other machine.
 
-## TODO
-
-* Create mirror repos
-* Add custom licenses
 * Add custom images
 
 # Building Docker image with customized Command Central server
 
 Before you start ensure you have installed [Docker](https://www.docker.com/products/overview) 
 
-To build customized docker container run:
+To build customized image for Command Central
 
 ```bash
-docker-compose up -d cc
+docker-compose build cc
 ```
 Successful execution will end with something like this
 
@@ -112,6 +113,12 @@ Total time: 1 minute 21 seconds
 Removing intermediate container 6ab350c69242
 Successfully built d17f77f1cfcb
 Creating sagdevopsccserver_cc_1
+```
+
+Run
+
+```bash
+docker-compose up -d cc
 ```
 
 Open https://localhost:8091/
