@@ -1,7 +1,205 @@
 <?xml version="1.0"?>
-<project xmlns="antlib:org.apache.tools.ant" basedir="." default="up" >
+<project xmlns="antlib:org.apache.tools.ant" basedir="." default="up" xmlns:if="ant:if" xmlns:unless="ant:unless" >
 	<import file="antcc/main.xml" />
 	
 	<!-- add custom targets here -->
+
+	<target name="up" depends="waitcc,sagenvInit,images,licenses" description="Setup everything" >
+		<antcall target="apply">
+			<param name="t" value="templates/cc-tuneup" />
+		</antcall>
+
+		<antcall target="apply" if:set="${empower.password}">
+			<param name="t" value="templates/sag-repos" />
+		</antcall>
+
+		<antcall target="mirrors">
+			<param name="release" value="9.12" />
+		</antcall>
+		
+	</target>
+
+	<target name="mirrors" depends="waitcc,sagenvInit" description="Create and update mirror repositories">
+		<property file="${env.properties}" />
+		<property name="release" value="9.12" />
+
+		<mirror type="products" release="${release}" 
+			from="is-${release}-lnxamd64,ninja-${release}-lnxamd64" filter="" />
+
+		<mirror type="fixes" release="${release}" 
+			from="ninja-${release}-fixes" 
+			filter="products-${release}" />
+
+
+		<!-- TODO: how to make it generic ? -->
+		<cc command="update repository products products-9.12 location=http://cc:8092/products-9.12/repository" />
+		<cc command="update repository fixes fixes-9.12 location=http://cc:8092/fix-fixes-9.12/repository" />
+
+		<echo>
+			Registered product repositories
+		</echo>
+		<cc command="list repository products" format="tsv"/>
+		
+		<echo>
+			Registered fix repositories
+		</echo>
+		<cc command="list repository fixes" format="tsv"/>
+	</target>
+
+	<target name="licenses" depends="sagccInit" description="Imports licence keys from licenses/ folder">
+		<!-- list existing alias keys -->
+		<cc command="list license-tools keys includeHeaders=false" format="csv" outputproperty="aliases" />
+		<echo>License key alises</echo>
+		<echo>${aliases}</echo>
+		
+		<iterate target="_import-license-files">
+			<fileset dir="licenses/lnxamd64" includes="*.xml" />
+			<fileset dir="licenses/w64" includes="*.xml" />
+			<fileset dir="licenses/any" includes="*.*" />
+		</iterate>
+
+		<echo>Registered license keys</echo>
+		<cc command="list license-tools keys" format="tsv"/>
+	</target>
+
+	<target name="images" depends="waitcc,sagenvInit" description="Upload images from images/ folder">
+		<cc command="list repository products includeHeaders=false" format="csv" outputproperty="productrepos" />
+		<cc command="list repository fixes includeHeaders=false" format="csv" outputproperty="fixrepos" />
+		<property name="aliases" value="${productrepos},${fixrepos}" />
+		
+		<iterate target="_upload-image-files">
+			<fileset dir="images/products" includes="*.zip" />
+			<fileset dir="images/fixes" includes="*.zip" />
+		</iterate>
+
+		<echo>
+			Registered product repositories
+		</echo>
+		<cc command="list repository products" format="tsv"/>
+		
+		<echo>
+			Registered fix repositories
+		</echo>
+		<cc command="list repository fixes" format="tsv"/>
+	</target>	
+
+	<!-- generic helpers: move to sagrepo -->
+
+	<macrodef name="mirror" >
+		<attribute name="type" default="products"/>
+		<attribute name="release" default="9.12"/>
+		<attribute name="name" default="@{type}-@{release}"/>
+		<attribute name="from" default="webMethods-@{release}"/>
+		<attribute name="filter" default="webMethods-@{release}"/>
+		<attribute name="platforms" default="LNXAMD64"/>
+		<attribute name="artifacts" default="ALL"/>
+		<attribute name="wait" default="3600" />
+
+		<sequential>
+			<!-- get list of all repositories -->
+			<cc command="list repository @{type} includeHeaders=false properties=displayName" format="csv" outputproperty="names" />
+		
+			<echo>Current @{type} repository names</echo>
+			<echo>${names}</echo>
+
+			<!-- check if we already have this repository -->
+			<contains list="${names}" item="@{name}" property="exists" />
+
+			<!-- if we don't, add it-->
+			<cc unless:true="${exists}" 
+				command="add repository @{type} mirror name=@{name} sourceRepos=@{from} productRepos=@{filter} artifacts=@{artifacts} platforms=@{platforms} includeHeaders=false properties=id" format="csv" outputproperty="jobid"/>
+			
+			<!-- if we do, update it -->
+			<echo if:true="${exists}">@{name} repository already exists. Updating ...</echo>
+			<cc if:true="${exists}"     
+				command="update repository @{type} mirror @{name} sourceRepos=@{from} productRepos=@{filter} artifacts=@{artifacts} platforms=@{platforms} includeHeaders=false properties=id" format="csv" outputproperty="jobid"/>
+			
+			<waitforjob wait="@{wait}" />
+		</sequential>
+	</macrodef>
+
+	<macrodef name="waitforjob" >
+		<attribute name="jobid" default="${jobid}"/>
+		<attribute name="wait" default="120" />
+		<sequential>
+			<cc command="list jobmanager jobs @{jobid} includeHeaders=false" 
+				expectedvalues="DONE|ERROR|WARNING|TIMEOUT|CANCELED" 
+				wait="@{wait}" 
+				checkevery="20" 
+				format="tsv" />
+			<antcall target="_jobresult"/>	
+		</sequential>
+	</macrodef>
+
+	<scriptdef name="iterate" language="javascript" description="Calls target for each file in fileset">
+		<element name="fileset" type="fileset"/>
+		<attribute name="target" />
+		<![CDATA[
+            callee = project.createTask("antcall");
+            callee.setTaskName(attributes.get("target"));
+            callee.init();
+            callee.setTarget(attributes.get("target"));
+            callee.setInheritAll(true);
+            callee.setInheritRefs(false);
+            p1 = callee.createParam();
+            p1.setName("dir");
+            p2 = callee.createParam();
+            p2.setName("file");
+            p3 = callee.createParam();
+            p3.setName("filename");
+            p4 = callee.createParam();
+            p4.setName("dirname");
+          	
+          	filesets = elements.get("fileset");
+              for (i = 0; i < filesets.size(); ++i) {
+          	    fileset = filesets.get(i);
+          	    dir = fileset.getDir(project)
+          	    ds = fileset.getDirectoryScanner();
+          	    files = ds.getIncludedFiles();
+          	    for (n = 0; n < files.length; n++) {
+          	      f = files[n]
+                  p1.setValue(dir);
+                  p2.setValue(f);
+                  p3.setValue(f.substring(0, f.length() - 4)); // no .ext
+                  p4.setValue(dir.getName());
+          	      callee.execute();
+          	  }
+            }
+    ]]>
+	</scriptdef>
+
+    <scriptdef language="javascript" name="contains">
+        <attribute name="list" />
+    	<attribute name="item" />
+        <attribute name="property" />
+        project.setProperty(attributes.get("property"), attributes.get("list").contains(attributes.get("item")));
+    </scriptdef>	
+	
+	<target name="_import-license-files">
+		<property name="alias" value="${filename}-${dirname}"/>
+		<!-- chcek if we already have this license key -->
+		<contains list="${aliases}" item="${alias}" property="exists" />
+
+		<echo if:true="${exists}">${alias}: already present!</echo>
+ 	    
+		<sequential unless:true="${exists}">
+            <echo>${alias}: importing from ${dir}/${file}</echo>
+            <cc command="add license-tools keys ${alias}" input="${dir}/${file}" failonerror="false" />
+ 	    </sequential>
+	</target>
+
+	<target name="_upload-image-files">
+		<property name="alias" value="${filename}"/>
+		<!-- check if we already have this repo -->
+		<contains list="${aliases}" item="${alias}" property="exists" />
+		
+		<echo if:true="${exists}">${alias}: already present!</echo>
+
+		<sequential unless:true="${exists}">
+            <echo>${alias}: uploading from ${dir}/${file}</echo>
+			<cc command="add repository ${dirname} image name=${alias} includeHeaders=false properties=id" input="${dir}/${file}" format="csv" outputproperty="jobid"/>
+			<waitforjob />
+ 	    </sequential>
+	</target>
 
 </project>

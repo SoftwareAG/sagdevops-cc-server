@@ -1,0 +1,5 @@
+build/*
+environments/test/*
+bootstrap/test.properties
+images/**/*.zip
+licenses/**/*.xml
