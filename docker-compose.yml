@@ -18,3 +18,5 @@ services:
     volumes: 
       - .:/src
     command: sagccant waitcc test -Dcc=docker-compose
+    depends_on: 
+      - cc
