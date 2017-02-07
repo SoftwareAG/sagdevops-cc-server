@@ -1,1 +1,0 @@
-place your OS independent licenses here
