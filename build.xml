@@ -9,6 +9,8 @@
 			<param name="t" value="templates/cc-tuneup" />
 		</antcall>
 
+		<!-- uncomment and customize
+		
 		<antcall target="apply" if:set="${empower.password}">
 			<param name="t" value="templates/sag-repos" />
 		</antcall>
@@ -16,6 +18,7 @@
 		<antcall target="mirrors">
 			<param name="release" value="9.12" />
 		</antcall>
+		-->
 		
 	</target>
 
