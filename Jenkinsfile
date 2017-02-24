@@ -26,13 +26,14 @@ pipeline {
         stage("Download and Boot") {
             steps {
                 timeout(time:60, unit:'MINUTES') {
+                    bat 'git submodule update --init' 
                     bat 'ant boot'
                 }
             }
         }
         stage("Up") {
             steps {
-                timeout(time:60, unit:'MINUTES') {
+                timeout(time:10, unit:'MINUTES') {
                     bat 'ant masters licenses images'
                 }
             }
