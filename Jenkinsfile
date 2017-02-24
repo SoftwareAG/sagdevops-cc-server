@@ -24,7 +24,7 @@ pipeline {
             steps {
                 timeout(time:60, unit:'MINUTES') {
                     bat 'git submodule update --init' 
-                    bat 'ant boot'
+                    bat 'ant boot -Daccept.license=true'
                 }
             }
         }
