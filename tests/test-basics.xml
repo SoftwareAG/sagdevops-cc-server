@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<project xmlns="antlib:org.apache.tools.ant" xmlns:au="antlib:org.apache.ant.antunit" basedir="..">
+
+	<import file="../build.xml" />
+	
+	<target name="test-client" depends="sagenvInit">
+	    <!-- example loading command output into a property -->
+		<cc command="list inventory products local CCE properties=product.id includeHeaders=false" format="csv" outputproperty="cce.id" />
+
+		<!-- and asserting property value -->
+ 		<au:assertTrue message="Bootstrap failed!">
+			<equals arg1="${cce.id}" arg2="CCE" />
+		</au:assertTrue>
+	</target>
+	
+</project>

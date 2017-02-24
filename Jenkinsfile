@@ -2,8 +2,20 @@
 
 pipeline {
     agent {
-        label 'docker'
+        label 'cc w64'
     }
+
+    tools {
+         ant "ant-1.9.7"
+         jdk "jdk-1.8"
+    }
+
+    // use agent node ENV variables
+    // or you can use parameters for the pipeline
+    //parameters {
+    //    stringParam(description: 'Empower username (email)', name: 'EMPOWER_USER')
+    //    stringParam(description: 'Empower password', name: 'EMPOWER_PASS')
+    //}
 
     options {
         buildDiscarder(logRotator(numToKeepStr:'10'))
@@ -11,23 +23,34 @@ pipeline {
     }
 
     stages {
-        stage("Build") {
+        stage("Download and Boot") {
             steps {
-                timeout(time:10, unit:'MINUTES') {
-                    sh 'docker-compose -p sagdevops-cc-server build --force-rm --no-cache --pull'
+                timeout(time:60, unit:'MINUTES') {
+                    bat 'ant boot'
+                }
+            }
+        }
+        stage("Up") {
+            steps {
+                timeout(time:60, unit:'MINUTES') {
+                    bat 'ant tuneup masters licenses images'
+                }
+            }
+        }
+        stage("Mirrors") {
+            steps {
+                timeout(time:120, unit:'MINUTES') {
+                    bat 'ant mirrors'
                 }
             }
         }
         stage("Test") {
             steps {
                 timeout(time:5, unit:'MINUTES') {
-                    sh 'docker-compose -p sagdevops-cc-server run --rm test'
+                    bat 'ant test'
                 }
             }
             post {
-                always {
-                    sh 'docker-compose -p sagdevops-cc-server stop'
-                }
                 success {
                     junit 'build/tests/**/TEST-*.xml'
                 }
@@ -36,12 +59,5 @@ pipeline {
                 }
             }
         }
-        stage("Deploy") {
-            steps {
-                //sh "docker tag sagcc/cce:9.12-internal daerepository03.eur.ad.sag:4443/ccdevops/cce:9.12-internal && docker images"
-                //sh "docker push daerepository03.eur.ad.sag:4443/ccdevops/cce:9.12-internal"
-                sh 'docker-compose -p sagdevops-cc-server up -d cc'
-            }
-        }        
     }
 }

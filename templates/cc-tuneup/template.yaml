@@ -1,15 +1,30 @@
 alias: cc-tuneup
 description: Tune up Command Central
-version: 0.1
+version: 0.2
 changes:
   - 0.1 Timeouts, pool sizes
+  - 0.2 HTTP/S proxy config
 
 environments:
   default:
-    com.softwareag.platform.management.client.template.composite.node.check.online.poll.timeout.miliseconds: 2400000
-    com.softwareag.platform.management.client.template.composite.restart.online.status.poll.timeout.miliseconds: 2400000
-    com.softwareag.platform.management.job.thread.pool.size: 40
-  
+    # timeout for node status change (seconds)
+    timeout.node.status: 2400
+    # timeout for runtime status change (seconds)
+    timeout.runtime.status: 2400
+    # number of concurrent jobs
+    pool.size.jobs: 50
+    
+    # HTTP proxy configuration
+    proxy.http.enabled: false
+    proxy.http.host: proxyhost
+    proxy.http.port: 8080
+    proxy.http.nonproxyhosts: "localhost|.local"
+
+    # HTTPS proxy configuration
+    proxy.https.enabled: false
+    proxy.https.host: ${proxy.http.host}
+    proxy.https.port: 8081
+    proxy.https.nonproxyhosts: ${proxy.http.nonproxyhosts}
 
 layers:
   cce:
@@ -24,10 +39,29 @@ templates:
           configuration:
             OSGI-CCE:              
               COMMON-SYSPROPS:
-                COMMON-SYSPROPS: |  # system properties
-                  com.softwareag.platform.management.client.template.composite.node.check.online.poll.timeout.miliseconds=${com.softwareag.platform.management.client.template.composite.node.check.online.poll.timeout.miliseconds}
-                  com.softwareag.platform.management.job.thread.pool.size=${com.softwareag.platform.management.job.thread.pool.size}
-                  com.softwareag.platform.management.client.template.composite.restart.online.status.poll.timeout.miliseconds=${com.softwareag.platform.management.client.template.composite.restart.online.status.poll.timeout.miliseconds}
+                COMMON-SYSPROPS: |  # system tuneup properties
+                  com.softwareag.platform.management.client.template.composite.node.check.online.poll.timeout.miliseconds=${timeout.node.status}000
+                  com.softwareag.platform.management.client.template.composite.restart.online.status.poll.timeout.miliseconds=${timeout.runtime.status}000
+                  com.softwareag.platform.management.job.thread.pool.size=${pool.size.jobs}
+      SPM:
+        default:
+          configuration:
+            OSGI-SPM:              
+              COMMON-PROXY:
+                COMMON-PROXY-HTTP:
+                  "@alias": HTTP
+                  Enabled: ${proxy.http.enabled}
+                  Protocol: HTTP
+                  Host: ${proxy.http.host}
+                  Port: ${proxy.http.port}
+                  NonProxyHosts: ${proxy.http.nonproxyhosts}
+                COMMON-PROXY-HTTPS:
+                  "@alias": HTTPS
+                  Enabled: ${proxy.https.enabled}
+                  Protocol: HTTPS
+                  Host: ${proxy.https.host}
+                  Port: ${proxy.https.port}
+                  NonProxyHosts: ${proxy.https.nonproxyhosts}
                     
 provision:
   default:

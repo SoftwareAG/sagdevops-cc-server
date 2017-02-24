@@ -2,41 +2,61 @@
 <project xmlns="antlib:org.apache.tools.ant" basedir="." default="up" xmlns:if="ant:if" xmlns:unless="ant:unless" >
 	<import file="antcc/main.xml" />
 	
-	<!-- add custom targets here -->
+	<target name="up" depends="tuneup,masters,licenses,images,mirrors" description="Setup everything" />
 
-	<target name="up" depends="waitcc,sagenvInit,images,licenses" description="Setup everything" >
+	<target name="tuneup" depends="waitcc,sagenvInit" description="Tune up connectivity and timeouts">
 		<antcall target="apply">
 			<param name="t" value="templates/cc-tuneup" />
 		</antcall>
-
-		<!-- uncomment and customize
-		
-		<antcall target="apply" if:set="${empower.password}">
-			<param name="t" value="templates/sag-repos" />
-		</antcall>
-
-		<antcall target="mirrors">
-			<param name="release" value="9.12" />
-		</antcall>
-		-->
-		
 	</target>
 
-	<target name="mirrors" depends="waitcc,sagenvInit" description="Create and update mirror repositories">
+	<target name="_checkenv" depends="sagenvInit">
+		<propertyfile file="${env.properties}">
+			<entry key="empower.username" value="${env.EMPOWER_USER}" if:set="env.EMPOWER_USER" />
+			<entry key="empower.password" value="${env.EMPOWER_PASS}" if:set="env.EMPOWER_PASS"/>
+		</propertyfile>
+		<property file="${env.properties}" />
+	</target>
+
+	<target name="_empowercreds" depends="_checkenv" unless="empower.password">
+		<echo>
+			Empower credentials are not provided in ${env.properties}
+			Please provide them now
+		</echo>
+
+		<input message="Enter your https://empower.softwareag.com/ username (email address): " 
+			addproperty="empower.username" unless:set="empower.username" />
+
+		<input message="Enter your https://empower.softwareag.com/ password: " 
+			addproperty="empower.password" unless:set="empower.password"/>
+
+		<echo>Storing Empower credentials in ${env.properties} for future use</echo>
+
+		<propertyfile file="${env.properties}">
+			<entry key="empower.username" value="${empower.username}" />
+			<entry key="empower.password" value="${empower.password}" />
+		</propertyfile>
+	</target>
+
+	<target name="masters" depends="_empowercreds,waitcc,sagenvInit" description="Register master repositories">
+		<antcall target="apply">
+			<param name="t" value="templates/sag-repos" />
+		</antcall>
+	</target>
+
+	<target name="mirrors" depends="_prepare,waitcc,sagenvInit" description="Create/update mirror repositories">
 		<property file="${env.properties}" />
 		<property name="release" value="9.12" />
+		<property name="mirror.products" value="ALL" />
+		<property name="mirror.platforms" value="ALL" />
 
 		<mirror type="products" release="${release}" 
-			from="is-${release}-lnxamd64,ninja-${release}-lnxamd64" filter="" />
+			from="webMethods-${release}" filter="" artifacts="${mirror.products}" platforms="${mirror.platforms}"/>
 
 		<mirror type="fixes" release="${release}" 
-			from="ninja-${release}-fixes" 
-			filter="products-${release}" />
-
-
-		<!-- TODO: how to make it generic ? -->
-		<cc command="update repository products products-9.12 location=http://cc:8092/products-9.12/repository" />
-		<cc command="update repository fixes fixes-9.12 location=http://cc:8092/fix-fixes-9.12/repository" />
+			from="Empower" 
+			filter="products-${release}" 
+			platforms="${mirror.platforms}"/>
 
 		<echo>
 			Registered product repositories
@@ -49,30 +69,36 @@
 		<cc command="list repository fixes" format="tsv"/>
 	</target>
 
-	<target name="licenses" depends="sagccInit" description="Imports licence keys from licenses/ folder">
+	<target name="licenses" depends="waitcc,sagenvInit" description="Import licence keys">
+		<property file="${env.properties}" />
+		<property name="licenses.dir" value="licenses" />
+
 		<!-- list existing alias keys -->
 		<cc command="list license-tools keys includeHeaders=false" format="csv" outputproperty="aliases" />
 		<echo>License key alises</echo>
 		<echo>${aliases}</echo>
-		
+
 		<iterate target="_import-license-files">
-			<fileset dir="licenses/lnxamd64" includes="*.xml" />
-			<fileset dir="licenses/w64" includes="*.xml" />
-			<fileset dir="licenses/any" includes="*.*" />
+			<fileset dir="${licenses.dir}/lnxamd64" includes="*.xml" />
+			<fileset dir="${licenses.dir}/w64" includes="*.xml" />
+			<fileset dir="${licenses.dir}/any" includes="*.*" />
 		</iterate>
 
 		<echo>Registered license keys</echo>
 		<cc command="list license-tools keys" format="tsv"/>
 	</target>
 
-	<target name="images" depends="waitcc,sagenvInit" description="Upload images from images/ folder">
+	<target name="images" depends="waitcc,sagenvInit" description="Upload product and fix images">
+		<property file="${env.properties}" />
+		<property name="images.dir" value="images" />
+
 		<cc command="list repository products includeHeaders=false" format="csv" outputproperty="productrepos" />
 		<cc command="list repository fixes includeHeaders=false" format="csv" outputproperty="fixrepos" />
 		<property name="aliases" value="${productrepos},${fixrepos}" />
-		
+
 		<iterate target="_upload-image-files">
-			<fileset dir="images/products" includes="*.zip" />
-			<fileset dir="images/fixes" includes="*.zip" />
+			<fileset dir="${images.dir}/products" includes="*.zip" />
+			<fileset dir="${images.dir}/fixes" includes="*.zip" />
 		</iterate>
 
 		<echo>
@@ -94,7 +120,7 @@
 		<attribute name="name" default="@{type}-@{release}"/>
 		<attribute name="from" default="webMethods-@{release}"/>
 		<attribute name="filter" default="webMethods-@{release}"/>
-		<attribute name="platforms" default="LNXAMD64"/>
+		<attribute name="platforms" default="ALL"/>
 		<attribute name="artifacts" default="ALL"/>
 		<attribute name="wait" default="3600" />
 
