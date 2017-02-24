@@ -13,8 +13,8 @@
 
 	<target name="_checkenv" depends="sagenvInit">
 		<propertyfile file="${env.properties}">
-			<entry key="empower.username" value="${env.EMPOWER_USER}" if:set="env.EMPOWER_USER" />
-			<entry key="empower.password" value="${env.EMPOWER_PASS}" if:set="env.EMPOWER_PASS"/>
+			<entry key="empower.username" value="${env.EMPOWER_USR}" if:set="env.EMPOWER_USR" />
+			<entry key="empower.password" value="${env.EMPOWER_PSW}" if:set="env.EMPOWER_PSW"/>
 		</propertyfile>
 		<property file="${env.properties}" />
 	</target>

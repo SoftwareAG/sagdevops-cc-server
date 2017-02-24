@@ -2,20 +2,13 @@
 
 pipeline {
     agent {
-        label 'w64'
+        label 'w64' // this is Windows pipeline
     }
 
     tools {
          ant "ant-1.9.7"
          jdk "jdk-1.8"
     }
-
-    // use agent node ENV variables
-    // or you can use parameters for the pipeline
-    //parameters {
-    //    stringParam(description: 'Empower username (email)', name: 'EMPOWER_USER')
-    //    stringParam(description: 'Empower password', name: 'EMPOWER_PASS')
-    //}
 
     options {
         buildDiscarder(logRotator(numToKeepStr:'10'))
@@ -24,6 +17,10 @@ pipeline {
 
     stages {
         stage("Download and Boot") {
+            environment {
+                // set EMPOWER_USR and EMPOWER_PSW env variables using Jenkins credentials
+                EMPOWER = credentials('empower')
+            }
             steps {
                 timeout(time:60, unit:'MINUTES') {
                     bat 'git submodule update --init' 
