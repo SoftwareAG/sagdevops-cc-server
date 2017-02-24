@@ -36,10 +36,14 @@ pipeline {
                 }
             }
         }
+        stage("Push") {
+            steps {
+                sh "docker tag mycc:9.12 daerepository03.eur.ad.sag:4443/ccdevops/cce:9.12-sdc && docker images"
+                sh "docker push daerepository03.eur.ad.sag:4443/ccdevops/cce:9.12-sdc"
+            }
+        }
         stage("Deploy") {
             steps {
-                //sh "docker tag sagcc/cce:9.12-internal daerepository03.eur.ad.sag:4443/ccdevops/cce:9.12-internal && docker images"
-                //sh "docker push daerepository03.eur.ad.sag:4443/ccdevops/cce:9.12-internal"
                 sh 'docker-compose -p sagdevops-cc-server up -d cc'
             }
         }        

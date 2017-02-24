@@ -2,12 +2,13 @@
 <project xmlns="antlib:org.apache.tools.ant" basedir="." default="up" xmlns:if="ant:if" xmlns:unless="ant:unless" >
 	<import file="antcc/main.xml" />
 	
-	<target name="up" depends="tuneup,masters,licenses,images,mirrors" description="Setup everything" />
+	<target name="up" depends="masters,licenses,images,mirrors" description="Setup everything" />
 
-	<target name="tuneup" depends="waitcc,sagenvInit" description="Tune up connectivity and timeouts">
+	<target name="proxy" depends="waitcc,sagenvInit" description="Configure proxy and timeouts">
 		<antcall target="apply">
 			<param name="t" value="templates/cc-tuneup" />
 		</antcall>
+		<antcall target="restartcc" />
 	</target>
 
 	<target name="_checkenv" depends="sagenvInit">

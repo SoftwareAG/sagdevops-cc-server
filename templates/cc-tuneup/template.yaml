@@ -15,15 +15,13 @@ environments:
     pool.size.jobs: 50
     
     # HTTP proxy configuration
-    proxy.http.enabled: false
-    proxy.http.host: proxyhost
-    proxy.http.port: 8080
+    proxy.http.host: ${}
+    proxy.http.port: ${}
     proxy.http.nonproxyhosts: "localhost|.local"
 
     # HTTPS proxy configuration
-    proxy.https.enabled: false
     proxy.https.host: ${proxy.http.host}
-    proxy.https.port: 8081
+    proxy.https.port: ${proxy.http.port}
     proxy.https.nonproxyhosts: ${proxy.http.nonproxyhosts}
 
 layers:
@@ -50,14 +48,12 @@ templates:
               COMMON-PROXY:
                 COMMON-PROXY-HTTP:
                   "@alias": HTTP
-                  Enabled: ${proxy.http.enabled}
                   Protocol: HTTP
                   Host: ${proxy.http.host}
                   Port: ${proxy.http.port}
                   NonProxyHosts: ${proxy.http.nonproxyhosts}
                 COMMON-PROXY-HTTPS:
                   "@alias": HTTPS
-                  Enabled: ${proxy.https.enabled}
                   Protocol: HTTPS
                   Host: ${proxy.https.host}
                   Port: ${proxy.https.port}

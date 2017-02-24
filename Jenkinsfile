@@ -33,7 +33,7 @@ pipeline {
         stage("Up") {
             steps {
                 timeout(time:60, unit:'MINUTES') {
-                    bat 'ant tuneup masters licenses images'
+                    bat 'ant masters licenses images'
                 }
             }
         }

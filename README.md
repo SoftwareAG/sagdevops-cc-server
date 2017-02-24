@@ -4,14 +4,16 @@ This project automates Command Central setup
 
 ## Requirements
 
-* You will need [Apache Ant](https://ant.apache.org/)
+* You need [Apache Ant](https://ant.apache.org/) for 
+[AntCC library](https://github.com/SoftwareAG/sagdevops-antcc)
 * To perform initial setup you will need direct Internet access
 
-To get started clone or fork this project (you will need to customize it).
-
-Then run git submodule initialization procedure to pull antcc library
+To get started clone or fork this project (you will need to customize it)
+and run git submodule initialization procedure to pull antcc library
 
 ```bash
+git clone https://github.com/SoftwareAG/sagdevops-antcc.git
+cd sagdevops-antcc
 git submodule init
 git submodule update
 ```
@@ -91,14 +93,14 @@ The downloaded bootstrap installer file will be reused (not download again).
 ## Customizing Command Central configuration
 
 
-### Tuneup Command Central server connectivity
+### Configure Internet proxy connection
 
-If your connection to the Internet goes via proxy 
-update [environments/default/env.properties](environments/default/env.properties) with 
+If you have direct connection to the Internet you can skip this step.
+
+If you have a proxy server update [environments/default/env.properties](environments/default/env.properties) with 
 your HTTP/S proxy configuration:
 
 ```
-proxy.http.enabled=true
 proxy.http.host=YOURPROXYHOST
 proxy.http.port=8080
 proxy.http.nonproxyhosts=localhost|.my.domain
@@ -107,44 +109,44 @@ proxy.http.nonproxyhosts=localhost|.my.domain
 Then run:
 
 ```bash
-ant tuneup
+ant proxy
 ```
 
 
 ### Register master repositories for products and fixes
 
-To register master repositories Command Central must have Internet access
-and [Empower](https://empower.softwareag.com/) credentials 
+If this Command Central does not have access to the Internet you can skip this step.
+
+IMPORTANT: Your _gateway_ or _development_ Command Central should have access to the Internet.
+
+To register master repositories Command Central needs your [Empower](https://empower.softwareag.com/) credentials 
 with permissions to download products and fixes.
+
+When you run:
 
 ```bash
 ant masters
 ```
 
-If credentials are not preconfigured in [environments/default/env.properties](environments/default/env.properties)
-the command will ask you to provide the credentials and will store them in the configuration file.
+Command Central will check [environments/default/env.properties](environments/default/env.properties)
+first and it the credentials are not configured there it will ask you to provide them.
+It then will store them in the env.properties file for later use.
 
 ```
 empower.username=YOUR_EMPOWER_USERNAME
 empower.password=YOUR_PASSWORD
 ```
 
-Alternatively you can set the values using environment variables.
-
-```bash
-export EMPOWER_USER=you@company.com
-export EMPOWER_PASS=youpass
-
-ant masters
-```
-
-Verify successful master repositories setup run:
+Verify successful master repositories setup:
 
 ```bash
 ant test
 ```
 
 ### Add license keys
+
+If you can skip this step if you plan on adding your license keys for each individual project,
+however it is recommended to add all your license keys now.
 
 Place your SAG products license key .xml files under _./licenses/<platform>_ folder.
 
@@ -181,6 +183,10 @@ ant licenses
 
 ### Add product and fix images 
 
+You can skip this step if you're planning to use only master and mirror repositories.
+
+Use of image repositories is discouraged.
+
 If you want to upload SAG Installer images to Command Central place the image 
 .zip files under _./images_/products folder and run:
 
@@ -215,10 +221,11 @@ ant images
 ### Create mirror repositories
 
 You should create mirror repositories to improve provisioning performance.
-NOTE: that this process may take a long time and requires up to 10GB of space on average per release
+
+NOTE: this process may take a long time and requires up to 10GB of space on average per release
 if you mirror all products.
 
-You can customize which release, and which products/fixes to mirror 
+You can customize which release and which products/fixes to mirror 
 [environments/default/env.properties](environments/default/env.properties)
 by setting this property:
 
@@ -227,8 +234,10 @@ release=9.x
 mirror.products=productId1,productId2,...
 ```
 
-TIP: To find out product ids, open Command Central Web UI, webMethods-9.x master repository content view
+TIP: To find out product ids, open Command Central Web UI, webMethods-${release} repository content view
 and tick _Show ID Column_ checkbox in the gear menu.
+
+To start mirrors create or update process run:
 
 ```bash
 ant mirrors
@@ -237,19 +246,36 @@ ant mirrors
 NOTE: fix mirror will download fixes only for the products in your product mirror
 repository.
 
-You can run this command again any time to pull the latest fixes from the master repo.
+You can run this command again any time to pull the latest products/fixes from the upstream repos.
 
-### Complete setup
+### Commit your changes to version control system
 
 IMPORTANT: To ensure your entire customized setup runs cleanly perform end-to-end run:
+
+Adjust 'up' target in [build.xml](build.xml) with the targets that are applicable to your setup and run:
 
 ```
 ant uninstall boot up test 
 ```
 
+The succesful test run will end with something like this:
+
+```
+[au:antunit] Environment configuration: environments/test/env.properties
+[au:antunit] ------------- ---------------- ---------------
+[au:antunit] Target: test-repos-master-prods took 1.103 sec
+[au:antunit] Target: test-repos-master-fixes took 1.092 sec
+[au:antunit] Target: test-repos-master-fixes-listing took 10.117 sec
+[au:antunit] Target: test-repos-master-prods-listing took 48.337 sec
+
+BUILD SUCCESSFUL
+Total time: 41 minutes 27 seconds
+```
+
 Commit your changes to your forked project. 
 
-Now you can checkout and run this project on any other machine to perform identical fully automated setup.
+Now you can pull and run this project on any other machine to perform identical fully automated setup
+of your customized Command Central server:
 
 ```
 ant boot up 
@@ -258,14 +284,21 @@ ant boot up
 
 # Building Docker image with customized Command Central server
 
+You can package all your customizations done above into a Docker image
+so that you can quickly launch new instances of Command Central for each of
+your CD stages or for CI testing.
+
 ## Requirements
 
 Before you start ensure you have installed [Docker](https://www.docker.com/products/overview)
-including docker-compose tool. 
+including docker-compose tool.
 
 There are no other requirements. You don't even have to have local Java or Apache Ant.
 
-## Buiding Docker image
+## Building Docker image
+
+By default the image build runs only 'tuneup masters' targets. You can 
+adjust that by modifying RUN command in the main [Dockerfile](Dockerfile).
 
 IMPORTANT: to build Docker image all license and image files MUST be in default location
 folders under this project. Docker sends all these files as build context. Docker cannot send files ouside
@@ -290,16 +323,18 @@ Successfully built d17f77f1cfcb
 Creating sagdevopsccserver_cc_1
 ```
 
-Run
+## Running custom built Command Central container
+
+Run thic command to launch your Command Central server container:
 
 ```bash
 export 
 docker-compose up -d cc
 ```
 
-Open https://localhost:8091/
+Open [https://localhost:8091/](https://localhost:8091/)
 
-To verify successful build run:
+To verify successful master repositories setup run:
 
 ```bash
 docker-compose run --rm test 
