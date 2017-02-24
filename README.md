@@ -1,6 +1,26 @@
 # Command Central server setup
 
-This project automates Command Central setup
+This project automates Command Central initial setup:
+
+* Download bootstrap installer for your OS from SDC
+* Run bootstrap installer
+* Configure HTTP/S proxy
+* Register master repositories
+* Upload license keys
+* Upload product and fix images
+* Create mirror repositories
+
+You can use this project to maintain your Command Central:
+
+* Pull the latest fixes/products into mirror repositories
+* Update Command Central to the latest patch level
+* Upgrade Command Central to a new release
+* Start/stop/restart Command Central
+* Check jobs and logs
+
+You can also build customized Command Central Docker image to 
+launch containers using your favourite Docker orchestrator.
+
 
 ## Requirements
 
@@ -87,13 +107,13 @@ You can re-bootstrap Command Central by running this command:
 ant uninstall boot
 ```
 
-The downloaded bootstrap installer file will be reused (not download again).
+The downloaded bootstrap installer file will be reused (not downloaded again).
 
 
 ## Customizing Command Central configuration
 
 
-### Configure Internet proxy connection
+### Configure proxy connection
 
 If you have direct connection to the Internet you can skip this step.
 
@@ -129,7 +149,7 @@ ant masters
 ```
 
 Command Central will check [environments/default/env.properties](environments/default/env.properties)
-first and it the credentials are not configured there it will ask you to provide them.
+first and if the credentials are not configured there it will ask you to provide them.
 It then will store them in the env.properties file for later use.
 
 ```
@@ -181,6 +201,8 @@ Run this command to import license files:
 ant licenses
 ```
 
+You can run this command again any time to add upload new license keys.
+
 ### Add product and fix images 
 
 You can skip this step if you're planning to use only master and mirror repositories.
@@ -188,10 +210,10 @@ You can skip this step if you're planning to use only master and mirror reposito
 Use of image repositories is discouraged.
 
 If you want to upload SAG Installer images to Command Central place the image 
-.zip files under _./images_/products folder and run:
+.zip files under _./images_/products folder.
 
 If you want to upload SAG Update Manager images place the image 
-.zip files under _./images/fixes_ folder and run:
+.zip files under _./images/fixes_ folder.
 
 You can customize the location of the images folder in 
 [environments/default/env.properties](environments/default/env.properties)
@@ -218,6 +240,8 @@ Run this command to upload image files:
 ant images
 ```
 
+You can run this command again any time to add upload new images.
+
 ### Create mirror repositories
 
 You should create mirror repositories to improve provisioning performance.
@@ -225,7 +249,7 @@ You should create mirror repositories to improve provisioning performance.
 NOTE: this process may take a long time and requires up to 10GB of space on average per release
 if you mirror all products.
 
-You can customize which release and which products/fixes to mirror 
+You can customize which release and which products/fixes to mirror using 
 [environments/default/env.properties](environments/default/env.properties)
 by setting this property:
 
@@ -272,15 +296,22 @@ BUILD SUCCESSFUL
 Total time: 41 minutes 27 seconds
 ```
 
-Commit your changes to your forked project. 
+Commit your changes to your target version control system, e.g. forked project on github or internal git repo.
 
-Now you can pull and run this project on any other machine to perform identical fully automated setup
+Now you can pull and run this project on any other host to perform identical fully automated setup
 of your customized Command Central server:
 
 ```
 ant boot up 
 ```
 
+## Cleanup
+
+To uninstall Command Central run:
+
+```bash
+ant uninstall
+```
 
 # Building Docker image with customized Command Central server
 
@@ -297,7 +328,7 @@ There are no other requirements. You don't even have to have local Java or Apach
 
 ## Building Docker image
 
-By default the image build runs only 'tuneup masters' targets. You can 
+By default the image build runs only 'masters licenses' targets. You can 
 adjust that by modifying RUN command in the main [Dockerfile](Dockerfile).
 
 IMPORTANT: to build Docker image all license and image files MUST be in default location
@@ -307,7 +338,7 @@ of the current folder!
 NOTE: including product or fix image files and creating mirror repositories will significatly increase
 Command Central Docker image size!
 
-To build customized image for Command Central:
+To build customized image for Command Central run:
 
 ```bash
 docker-compose build cc
@@ -325,10 +356,9 @@ Creating sagdevopsccserver_cc_1
 
 ## Running custom built Command Central container
 
-Run thic command to launch your Command Central server container:
+Run this command to launch your Command Central server container:
 
 ```bash
-export 
 docker-compose up -d cc
 ```
 
