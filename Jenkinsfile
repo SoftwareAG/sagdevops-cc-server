@@ -2,7 +2,7 @@
 
 pipeline {
     agent {
-        label 'cc w64'
+        label 'w64'
     }
 
     tools {
