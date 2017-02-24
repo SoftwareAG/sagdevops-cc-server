@@ -1,15 +1,6 @@
 #!groovy​
 
 pipeline {
-    agent {
-        label 'w64' // this is Windows pipeline
-    }
-
-    tools {
-         ant "ant-1.9.7"
-         jdk "jdk-1.8"
-    }
-
     options {
         buildDiscarder(logRotator(numToKeepStr:'10'))
         disableConcurrentBuilds()
@@ -33,6 +24,13 @@ pipeline {
             }
         }
         stage("Download and Boot") {
+            agent {
+                label 'w64' // this is Windows pipeline
+            }
+            tools {
+                ant "ant-1.9.7"
+                jdk "jdk-1.8"
+            }            
             environment {
                 // set EMPOWER_USR and EMPOWER_PSW env variables using Jenkins credentials
                 EMPOWER = credentials('empower')
@@ -45,6 +43,9 @@ pipeline {
             }
         }
         stage("Up") {
+            agent {
+                label 'w64' // this is Windows pipeline
+            }
             steps {
                 timeout(time:10, unit:'MINUTES') {
                     bat 'ant masters licenses images'
@@ -52,6 +53,9 @@ pipeline {
             }
         }
         stage("Mirrors") {
+            agent {
+                label 'w64' // this is Windows pipeline
+            }
             steps {
                 timeout(time:120, unit:'MINUTES') {
                     bat 'ant mirrors'
@@ -59,6 +63,9 @@ pipeline {
             }
         }
         stage("Test") {
+            agent {
+                label 'w64' // this is Windows pipeline
+            }
             steps {
                 timeout(time:5, unit:'MINUTES') {
                     bat 'ant test'
