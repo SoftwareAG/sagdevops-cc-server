@@ -1,6 +1,8 @@
 #!groovy​
 
 pipeline {
+    agent none
+
     options {
         buildDiscarder(logRotator(numToKeepStr:'10'))
         disableConcurrentBuilds()
@@ -23,7 +25,19 @@ pipeline {
                 sleep 80
             }
         }
-        stage("Download and Boot") {
+        
+        stage("Prepare") {
+            agent {
+                label 'master'
+            }
+            steps {
+                checkout scm
+                sh 'git submodule update --init' 
+                stash(name:'scripts', includes:'**')
+            }
+        }
+        
+        stage("Boot Up Test") {
             agent {
                 label 'w64' // this is Windows pipeline
             }
@@ -36,39 +50,15 @@ pipeline {
                 EMPOWER = credentials('empower')
             }
             steps {
+                unstash 'scripts'
+                
                 timeout(time:60, unit:'MINUTES') {
-                    bat 'git submodule update --init' 
                     bat 'ant boot -Daccept.license=true'
+                    bat 'ant masters licenses images test'
                 }
-            }
-        }
-        stage("Up") {
-            agent {
-                label 'w64' // this is Windows pipeline
-            }
-            steps {
-                timeout(time:10, unit:'MINUTES') {
-                    bat 'ant masters licenses images'
-                }
-            }
-        }
-        stage("Mirrors") {
-            agent {
-                label 'w64' // this is Windows pipeline
-            }
-            steps {
+
                 timeout(time:120, unit:'MINUTES') {
                     bat 'ant mirrors'
-                }
-            }
-        }
-        stage("Test") {
-            agent {
-                label 'w64' // this is Windows pipeline
-            }
-            steps {
-                timeout(time:5, unit:'MINUTES') {
-                    bat 'ant test'
                 }
             }
             post {
@@ -78,7 +68,7 @@ pipeline {
                 unstable {
                     junit 'build/tests/**/TEST-*.xml'
                 }
-            }
+            }            
         }
     }
 }
