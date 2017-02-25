@@ -49,7 +49,7 @@
 		<property file="${env.properties}" />
 		<property name="release" value="9.12" />
 		<property name="mirror.products" value="ALL" />
-		<property name="mirror.platforms" value="ALL" />
+		<property name="mirror.platforms" value="${platform.uppercase}" />
 
 		<mirror type="products" release="${release}" 
 			from="webMethods-${release}" filter="" artifacts="${mirror.products}" platforms="${mirror.platforms}"/>
@@ -121,7 +121,7 @@
 		<attribute name="name" default="@{type}-@{release}"/>
 		<attribute name="from" default="webMethods-@{release}"/>
 		<attribute name="filter" default="webMethods-@{release}"/>
-		<attribute name="platforms" default="ALL"/>
+		<attribute name="platforms" default="${platform.uppercase}"/>
 		<attribute name="artifacts" default="ALL"/>
 		<attribute name="wait" default="3600" />
 
