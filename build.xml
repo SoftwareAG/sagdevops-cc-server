@@ -82,7 +82,7 @@
 		<iterate target="_import-license-files">
 			<fileset dir="${licenses.dir}/lnxamd64" includes="*.xml" />
 			<fileset dir="${licenses.dir}/w64" includes="*.xml" />
-			<fileset dir="${licenses.dir}/any" includes="*.*" />
+			<fileset dir="${licenses.dir}/any" includes="*.*" excludes="readme.txt" />
 		</iterate>
 
 		<echo>Registered license keys</echo>

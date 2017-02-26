@@ -32,8 +32,8 @@ To get started clone or fork this project (you will need to customize it)
 and run git submodule initialization procedure to pull antcc library
 
 ```bash
-git clone https://github.com/SoftwareAG/sagdevops-antcc.git
-cd sagdevops-antcc
+git clone https://github.com/SoftwareAG/sagdevops-cc-server
+cd sagdevops-cc-server
 git submodule init
 git submodule update
 ```
@@ -46,7 +46,7 @@ Verify that your _antcc_ folder is not empty.
 Bootstrap the latest version of Command Central server:
 
 ```bash
-ant boot -Daccept.license=true -Dinstall.dir=/where/to/install
+ant boot -Daccept.license=true
 ```
 
 IMPORTANT: By setting ```accept.license=true``` property 
