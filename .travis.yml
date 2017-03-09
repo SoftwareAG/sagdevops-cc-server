@@ -3,4 +3,5 @@ jdk:
   - oraclejdk8
 script:
   - ant boot -Daccept.license=true
-  - ant up test
+  - ant masters test 
+  - ant installers mirrors
