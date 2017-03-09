@@ -4,4 +4,4 @@ jdk:
 script:
   - ant boot -Daccept.license=true
   - ant masters test 
-  - ant installers mirrors
+  - ant installers
