@@ -62,7 +62,8 @@ pipeline {
             steps {
                 unstash 'scripts'
                 timeout(time:10, unit:'MINUTES') {
-                    bat 'ant masters licenses images test -Denv=internal -Dbootstrap=10.0'
+                    bat 'ant masters licenses images -Denv=10.0 -Dbootstrap=10.0'
+                    bat 'ant test -Denv=internal' // test against 9.12 repos
                 }
             }
             post {
