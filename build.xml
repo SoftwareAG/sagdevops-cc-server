@@ -2,7 +2,7 @@
 <project xmlns="antlib:org.apache.tools.ant" basedir="." default="up" xmlns:if="ant:if" xmlns:unless="ant:unless" >
 	<import file="antcc/main.xml" />
 	
-	<target name="up" depends="masters,licenses,images,mirrors" description="Setup everything" />
+	<target name="up" depends="masters,licenses,images,installers,mirrors" description="Setup everything" />
 
 	<target name="proxy" depends="waitcc,sagenvInit" description="Configure proxy and timeouts">
 		<antcall target="apply">
@@ -72,12 +72,16 @@
 
 	<target name="licenses" depends="waitcc,sagenvInit" description="Import licence keys">
 		<property file="${env.properties}" />
-		<property name="licenses.dir" value="licenses" />
 
-		<!-- list existing alias keys -->
+		<property name="licenses.dir" value="licenses" unless:set="licenses.zip.url"/>
+		<property name="licenses.dir" value="build/licenses" if:set="licenses.zip.url"/>
+
+		<echo if:set="licenses.zip.url">Downloading license keys .zip from: ${licenses.zip.url}</echo>
+		<mkdir dir="build/downloads" />
+		<get src="${licenses.zip.url}" dest="build/downloads/licenses.zip" usetimestamp="true" if:set="licenses.zip.url" />
+		<unzip src="build/downloads/licenses.zip" dest="${licenses.dir}" if:set="licenses.zip.url" />
+
 		<cc command="list license-tools keys includeHeaders=false" format="csv" outputproperty="aliases" />
-		<echo>License key alises</echo>
-		<echo>${aliases}</echo>
 
 		<iterate target="_import-license-files">
 			<fileset dir="${licenses.dir}/lnxamd64" includes="*.xml" />
@@ -147,6 +151,38 @@
 			<waitforjob wait="@{wait}" />
 		</sequential>
 	</macrodef>
+
+	<target name="installers" depends="_prepare,sagenvInit" description="Download bootstrap installers">
+		<property name="installers.dir" value="${install.dir}/profiles/CCE/data/installers" />
+		<mkdir dir="${installers.dir}" />
+
+		<property file="${env.properties}" />
+		<property name="installers" value="" />
+		<echo>
+			Downloading requested installers: ${installers} ...
+		</echo>
+
+		<for list="${installers}" param="i" delimiter=",">
+			<sequential>
+				<antcall target="_download">
+					<param name="installer.file" value="@{i}" />
+				</antcall>
+			</sequential>
+        </for>
+
+		<echo>
+			Copying downloaded installers
+		</echo>
+
+		<copy todir="${installers.dir}">
+			<fileset dir="${installer.dir}" includes="${installers}" />
+		</copy>
+
+		<echo>
+			Registered bootstrap installers
+		</echo>
+		<cc command="list provisioning bootstrap installers" format="tsv"/>
+	</target>	
 
 	<macrodef name="waitforjob" >
 		<attribute name="jobid" default="${jobid}"/>

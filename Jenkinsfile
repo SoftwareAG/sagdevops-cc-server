@@ -46,7 +46,7 @@ pipeline {
             steps {
                 unstash 'scripts'
                 timeout(time:60, unit:'MINUTES') {
-                    bat 'ant boot -Daccept.license=true'
+                    bat 'ant boot -Daccept.license=true -Dbootstrap=10.0'
                 }
             }
         }
@@ -62,7 +62,7 @@ pipeline {
             steps {
                 unstash 'scripts'
                 timeout(time:10, unit:'MINUTES') {
-                    bat 'ant masters licenses images test'
+                    bat 'ant masters licenses images test -Denv=internal -Dbootstrap=10.0'
                 }
             }
             post {
@@ -82,7 +82,7 @@ pipeline {
             steps {
                 unstash 'scripts'
                 timeout(time:120, unit:'MINUTES') {
-                    bat 'ant mirrors'
+                    bat 'ant installers mirrors -Denv=internal -Dbootstrap=10.0'
                 }
             }
         }
