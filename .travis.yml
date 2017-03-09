@@ -2,4 +2,5 @@ language: java
 jdk:
   - oraclejdk8
 script:
-  - ant boot up
+  - ant boot -Daccept.license=true
+  - sagccant up test
