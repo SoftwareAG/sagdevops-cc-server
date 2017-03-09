@@ -43,7 +43,7 @@ pipeline {
         
         stage("Boot") {
             agent {
-                label "$NODE"
+                label 'bgcctbp11.eur.ad.sag'
             }
             tools {
                 ant "ant-1.9.7"
@@ -59,7 +59,7 @@ pipeline {
 
         stage('Up') {
             agent {
-                label "$NODE"
+                label 'bgcctbp11.eur.ad.sag'
             }
             environment {
                 // set EMPOWER_USR and EMPOWER_PSW env variables using Jenkins credentials
@@ -100,7 +100,7 @@ pipeline {
 
         stage('Mirrors') {
             agent {
-                label "$NODE"
+                label 'bgcctbp11.eur.ad.sag'
             }
             steps {
                 unstash 'scripts'
