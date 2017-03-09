@@ -14,8 +14,8 @@ pipeline {
         SOLARIS_VM = 'bgninjabvt22' // http://ccbvtauto.eur.ad.sag:8080/computer/bgninjabvt22.eur.ad.sag/
         VM_SERVER  = 'daevvc02'
 
-        CC_VM = "${LINUX_VM}" // use any of the above/other
-        NODE = "${CC_VM}.eur.ad.sag" // node label
+        CC_VM = "bgcctbp11" // use any of the above/other
+        NODE = "bgcctbp11.eur.ad.sag" // node label
     }
 
     stages {
