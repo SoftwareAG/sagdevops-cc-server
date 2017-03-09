@@ -1,0 +1,6 @@
+language: java
+env:
+  - EMPOWER_USR=sergei.pogrebnyak@softwareag.com
+  - EMPOWER_PSW=
+script:
+  - ant boot up
