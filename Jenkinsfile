@@ -8,20 +8,26 @@ pipeline {
         disableConcurrentBuilds()
     }
 
+    environment {
+        LINUX_VM   = 'bgcctbp11' // http://ccbvtauto.eur.ad.sag:8080/computer/bgninjabvt11.eur.ad.sag/
+        WINDOWS_VM = 'bgninjabvt02' // http://ccbvtauto.eur.ad.sag:8080/computer/bgninjabvt02.eur.ad.sag/
+        SOLARIS_VM = 'bgninjabvt22' // http://ccbvtauto.eur.ad.sag:8080/computer/bgninjabvt22.eur.ad.sag/
+        VM_SERVER  = 'daevvc02'
+
+        CC_VM = "${LINUX_VM}" // use any of the above/other
+        NODE = "${CC_VM}.eur.ad.sag" // node label
+    }
+
     stages {
-        stage("Restart VMs") {
+        stage("Restart VM") {
             agent {
                 label 'master'
             }
             steps {
-                // TODO: clean this up
-                //vSphere buildStep: [$class: 'PowerOff', evenIfSuspended: false, shutdownGracefully: false, vm: 'bgninjabvt11'], serverName: 'daevvc02'
-                vSphere buildStep: [$class: 'PowerOff', evenIfSuspended: false, shutdownGracefully: false, vm: 'bgninjabvt02'], serverName: 'daevvc02'
-                //vSphere buildStep: [$class: 'PowerOff', evenIfSuspended: false, shutdownGracefully: false, vm: 'bgninjabvt22'], serverName: 'daevvc02'
-                //vSphere buildStep: [$class: 'PowerOn', timeoutInSeconds: 180, vm: 'bgninjabvt11'], serverName: 'daevvc02'
-                vSphere buildStep: [$class: 'PowerOn', timeoutInSeconds: 180, vm: 'bgninjabvt02'], serverName: 'daevvc02'
-                //vSphere buildStep: [$class: 'PowerOn', timeoutInSeconds: 180, vm: 'bgninjabvt22'], serverName: 'daevvc02'
-            }
+                // main CC_VM
+                vSphere buildStep: [$class: 'PowerOff', evenIfSuspended: false, shutdownGracefully: false, vm: "${CC_VM}"], serverName: "${VM_SERVER}"
+                vSphere buildStep: [$class: 'PowerOn', timeoutInSeconds: 180, vm: "${CC_VM}"], serverName: "${VM_SERVER}"
+           }
         }
         
         stage("Prepare") {
@@ -37,7 +43,7 @@ pipeline {
         
         stage("Boot") {
             agent {
-                label 'w64' // this is Windows pipeline
+                label "$NODE"
             }
             tools {
                 ant "ant-1.9.7"
@@ -46,14 +52,14 @@ pipeline {
             steps {
                 unstash 'scripts'
                 timeout(time:60, unit:'MINUTES') {
-                    bat 'ant boot -Daccept.license=true -Dbootstrap=10.0'
+                    sh 'ant boot -Dbootstrap=10.0'
                 }
             }
         }
 
         stage('Up') {
             agent {
-                label 'w64'
+                label "$NODE"
             }
             environment {
                 // set EMPOWER_USR and EMPOWER_PSW env variables using Jenkins credentials
@@ -62,8 +68,8 @@ pipeline {
             steps {
                 unstash 'scripts'
                 timeout(time:10, unit:'MINUTES') {
-                    bat 'ant masters licenses images -Denv=10.0 -Dbootstrap=10.0'
-                    bat 'ant test -Denv=internal' // test against 9.12 repos
+                    sh 'ant masters licenses images installers -Denv=10.0'
+                    sh 'ant test -Denv=internal' // test against 9.12 repos
                 }
             }
             post {
@@ -76,14 +82,30 @@ pipeline {
             }  
         }
 
+        stage("Reset Target VM's") {
+            agent {
+                label 'master'
+            }
+            steps {
+                script {
+                    def vms = ['bgcctbp12', 'bgcctbp13', 'bgcctbp14']
+                    for (int i = 0; i < vms.size(); ++i) {
+                        echo "Resetting ${vms[i]}..."
+                        vSphere buildStep: [$class: 'PowerOff', evenIfSuspended: false, shutdownGracefully: false, vm: "${vms[i]}"], serverName: "${VM_SERVER}"
+                        vSphere buildStep: [$class: 'PowerOn', timeoutInSeconds: 180, vm: "${vms[i]}"], serverName: "${VM_SERVER}"
+                    }
+                }
+           }
+        }        
+
         stage('Mirrors') {
             agent {
-                label 'w64'
+                label "$NODE"
             }
             steps {
                 unstash 'scripts'
                 timeout(time:120, unit:'MINUTES') {
-                    bat 'ant installers mirrors -Denv=internal -Dbootstrap=10.0'
+                    sh 'ant mirrors -Denv=internal'
                 }
             }
         }
