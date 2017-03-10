@@ -4,6 +4,10 @@ pipeline {
     agent {
         label 'master' // most of work on linux master/client
     }
+    tools {
+        ant "ant-1.9.7"
+        jdk "jdk-1.8"
+    }       
 
     options {
         buildDiscarder(logRotator(numToKeepStr:'10'))
@@ -38,10 +42,6 @@ pipeline {
             agent {
                 label params.VM + '.eur.ad.sag' // bootstrap MUST run on the target VM
             }
-            tools {
-                ant "ant-1.9.7"
-                jdk "jdk-1.8"
-            }            
             /*
             when { 
                 expression { return isUnix() } 
