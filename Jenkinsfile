@@ -36,7 +36,7 @@ pipeline {
         
         stage("Boot Unix") {
             agent {
-                label params.VM // bootstrap MUST run on the target VM
+                label params.VM + 'eur.ad.sag' // bootstrap MUST run on the target VM
             }
             tools {
                 ant "ant-1.9.7"
