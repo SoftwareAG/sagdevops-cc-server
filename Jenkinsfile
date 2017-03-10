@@ -20,9 +20,6 @@ pipeline {
 
     stages {
         stage("Restart VM") {
-            agent {
-                label 'master'
-            }
             steps {
                 vSphere buildStep: [$class: 'PowerOff', vm: params.VM, evenIfSuspended: false, shutdownGracefully: false], serverName: "${VM_SERVER}"
                 vSphere buildStep: [$class: 'PowerOn',  vm: params.VM, timeoutInSeconds: 180], serverName: "${VM_SERVER}"
@@ -82,8 +79,8 @@ pipeline {
             steps {
                 unstash 'scripts'
                 timeout(time:10, unit:'MINUTES') {
-                    sh 'ant client -Dbootstrap=10.0' // boot client
-                    sh "ant masters licenses images -Denv=10.0 -Dcc=${params.VM}" // point to the target VM
+                    sh "ant client -Dbootstrap=10.0" // boot client
+                    sh "ant masters licenses -Denv=10.0 -Dcc=${params.VM}" // point to the target VM
                 }
             }
         }
@@ -105,11 +102,12 @@ pipeline {
             }  
         }
 
+/*
         stage('Installers') {
             steps {
                 unstash 'scripts'
                 timeout(time:240, unit:'MINUTES') {
-                    sh "ant installers -Denv=internal -Dcc=${params.VM}"
+                    sh "ant installers -Denv=internal -Dbootstrap=internal -Dcc=${params.VM}"
                 }
             }
         }       
@@ -122,6 +120,7 @@ pipeline {
                 }
             }
         }
+*/        
 
 /*
         stage("Reset Target VM's") {
