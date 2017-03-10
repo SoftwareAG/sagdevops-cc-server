@@ -42,9 +42,10 @@ pipeline {
                 ant "ant-1.9.7"
                 jdk "jdk-1.8"
             }            
+            /*
             when { 
                 expression { return isUnix() } 
-            }
+            }*/
             steps {
                 unstash 'scripts'
                 timeout(time:60, unit:'MINUTES') {
@@ -52,6 +53,7 @@ pipeline {
                 }
             }
         }
+        /*
         stage('Boot Windows') {
             agent {
                 label params.VM // bootstrap MUST run on the target VM
@@ -69,7 +71,7 @@ pipeline {
                     bat 'ant boot -Dbootstrap=10.0' // use bat
                 }
             }
-        }       
+        }*/       
 
         stage('Up') {
             environment {
