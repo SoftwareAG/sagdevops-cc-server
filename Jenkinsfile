@@ -68,7 +68,7 @@ pipeline {
             steps {
                 unstash 'scripts'
                 timeout(time:10, unit:'MINUTES') {
-                    sh 'ant masters licenses images installers -Denv=10.0'
+                    sh 'ant masters licenses images -Denv=10.0'
                     sh 'ant test -Denv=internal' // test against 9.12 repos
                 }
             }
@@ -99,18 +99,16 @@ pipeline {
            }
         }        
 */
-/*
         stage('Mirrors') {
             agent {
                 label 'bgninjabvt11.eur.ad.sag'
             }
             steps {
                 unstash 'scripts'
-                timeout(time:120, unit:'MINUTES') {
-                    sh 'ant mirrors -Denv=internal'
+                timeout(time:240, unit:'MINUTES') {
+                    sh 'ant installers mirrors -Denv=internal'
                 }
             }
         }
-*/
     }
 }
