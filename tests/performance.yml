@@ -1,0 +1,24 @@
+---
+execution:
+- concurrency: 10
+  ramp-up: 10s
+  hold-for: 30s
+  scenario: simple
+
+scenarios:
+  simple:
+    think-time: 0.75
+    requests:
+    - https://localhost:8091/cce/web
+
+services:
+- module: passfail
+  criteria:
+  - avg-rt>100ms for 10s, stop as failed
+  - hots or reserve
+
+reporting:
+- module: console
+- module: junit-xml
+  filename: build/tests/performance/TEST.xml
+  data-source: pass-fail
