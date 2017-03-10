@@ -9,13 +9,13 @@ pipeline {
     }
 
     environment {
-        LINUX_VM   = 'bgcctbp11' // http://ccbvtauto.eur.ad.sag:8080/computer/bgninjabvt11.eur.ad.sag/
+        LINUX_VM   = 'bgninjabvt11' // http://ccbvtauto.eur.ad.sag:8080/computer/bgninjabvt11.eur.ad.sag/
         WINDOWS_VM = 'bgninjabvt02' // http://ccbvtauto.eur.ad.sag:8080/computer/bgninjabvt02.eur.ad.sag/
         SOLARIS_VM = 'bgninjabvt22' // http://ccbvtauto.eur.ad.sag:8080/computer/bgninjabvt22.eur.ad.sag/
         VM_SERVER  = 'daevvc02'
 
-        CC_VM = "bgcctbp11" // use any of the above/other
-        NODE = "bgcctbp11.eur.ad.sag" // node label
+        CC_VM = "bgninjabvt11" // use any of the above/other
+        NODE = "bgninjabvt11.eur.ad.sag" // node label
     }
 
     stages {
@@ -43,7 +43,7 @@ pipeline {
         
         stage("Boot") {
             agent {
-                label 'bgcctbp11.eur.ad.sag'
+                label 'bgninjabvt11.eur.ad.sag'
             }
             tools {
                 ant "ant-1.9.7"
@@ -59,7 +59,7 @@ pipeline {
 
         stage('Up') {
             agent {
-                label 'bgcctbp11.eur.ad.sag'
+                label 'bgninjabvt11.eur.ad.sag'
             }
             environment {
                 // set EMPOWER_USR and EMPOWER_PSW env variables using Jenkins credentials
@@ -82,6 +82,7 @@ pipeline {
             }  
         }
 
+/*
         stage("Reset Target VM's") {
             agent {
                 label 'master'
@@ -97,10 +98,11 @@ pipeline {
                 }
            }
         }        
-
+*/
+/*
         stage('Mirrors') {
             agent {
-                label 'bgcctbp11.eur.ad.sag'
+                label 'bgninjabvt11.eur.ad.sag'
             }
             steps {
                 unstash 'scripts'
@@ -109,5 +111,6 @@ pipeline {
                 }
             }
         }
+*/
     }
 }
