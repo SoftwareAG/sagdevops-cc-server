@@ -1,21 +1,21 @@
 #!groovy​
 
 pipeline {
-    agent none
+    agent {
+        label 'master' // most of work on linux master/client
+    }
 
     options {
         buildDiscarder(logRotator(numToKeepStr:'10'))
         disableConcurrentBuilds()
     }
 
-    environment {
-        LINUX_VM   = 'bgninjabvt11' // http://ccbvtauto.eur.ad.sag:8080/computer/bgninjabvt11.eur.ad.sag/
-        WINDOWS_VM = 'bgninjabvt02' // http://ccbvtauto.eur.ad.sag:8080/computer/bgninjabvt02.eur.ad.sag/
-        SOLARIS_VM = 'bgninjabvt22' // http://ccbvtauto.eur.ad.sag:8080/computer/bgninjabvt22.eur.ad.sag/
-        VM_SERVER  = 'daevvc02'
+    parameters { 
+        string(name: 'VM', defaultValue: 'bgcctbp05', description: 'Command Central server VM: bgcctbp05 (lnx), bgcctbp21 (win), bgninjabvt22 (sol)') 
+    }
 
-        CC_VM = "bgninjabvt11" // use any of the above/other
-        NODE = "bgninjabvt11.eur.ad.sag" // node label
+    environment {
+        VM_SERVER  = 'daevvc02'
     }
 
     stages {
@@ -24,16 +24,12 @@ pipeline {
                 label 'master'
             }
             steps {
-                // main CC_VM
-                vSphere buildStep: [$class: 'PowerOff', evenIfSuspended: false, shutdownGracefully: false, vm: "${CC_VM}"], serverName: "${VM_SERVER}"
-                vSphere buildStep: [$class: 'PowerOn', timeoutInSeconds: 180, vm: "${CC_VM}"], serverName: "${VM_SERVER}"
+                vSphere buildStep: [$class: 'PowerOff', vm: params.VM, evenIfSuspended: false, shutdownGracefully: false], serverName: "${VM_SERVER}"
+                vSphere buildStep: [$class: 'PowerOn',  vm: params.VM, timeoutInSeconds: 180], serverName: "${VM_SERVER}"
            }
         }
         
         stage("Prepare") {
-            agent {
-                label 'master'
-            }
             steps {
                 checkout scm
                 sh 'git submodule update --init' 
@@ -41,26 +37,44 @@ pipeline {
             }
         }
         
-        stage("Boot") {
+        stage("Boot Unix") {
             agent {
-                label 'bgninjabvt11.eur.ad.sag'
+                label params.VM // bootstrap MUST run on the target VM
             }
             tools {
                 ant "ant-1.9.7"
                 jdk "jdk-1.8"
             }            
+            when { 
+                expression { return isUnix() } 
+            }
             steps {
                 unstash 'scripts'
                 timeout(time:60, unit:'MINUTES') {
-                    sh 'ant boot -Dbootstrap=10.0'
+                    sh 'ant boot -Dbootstrap=10.0' // use sh
                 }
             }
         }
+        stage('Boot Windows') {
+            agent {
+                label params.VM // bootstrap MUST run on the target VM
+            }
+            tools {
+                ant "ant-1.9.7"
+                jdk "jdk-1.8"
+            }             
+            when { 
+                expression { return !isUnix() } 
+            }
+            steps {
+                unstash 'scripts'
+                timeout(time:60, unit:'MINUTES') {
+                    bat 'ant boot -Dbootstrap=10.0' // use bat
+                }
+            }
+        }       
 
         stage('Up') {
-            agent {
-                label 'bgninjabvt11.eur.ad.sag'
-            }
             environment {
                 // set EMPOWER_USR and EMPOWER_PSW env variables using Jenkins credentials
                 EMPOWER = credentials('empower')
@@ -68,10 +82,19 @@ pipeline {
             steps {
                 unstash 'scripts'
                 timeout(time:10, unit:'MINUTES') {
-                    sh 'ant masters licenses images -Denv=10.0'
-                    sh 'ant test -Denv=internal' // test against 9.12 repos
+                    sh 'ant client -Dbootstrap=10.0' // boot client
+                    sh "ant masters licenses images -Denv=10.0 -Dcc=${params.VM}" // point to the target VM
                 }
             }
+        }
+
+        stage('Test') {
+            steps {
+                unstash 'scripts'
+                timeout(time:10, unit:'MINUTES') {
+                    sh "ant test -Denv=internal -Dcc=${params.VM}"
+                }
+            }            
             post {
                 success {
                     junit 'build/tests/**/TEST-*.xml'
@@ -82,11 +105,26 @@ pipeline {
             }  
         }
 
+        stage('Installers') {
+            steps {
+                unstash 'scripts'
+                timeout(time:240, unit:'MINUTES') {
+                    sh "ant installers -Denv=internal -Dcc=${params.VM}"
+                }
+            }
+        }       
+        
+        stage('Mirrors') {
+            steps {
+                unstash 'scripts'
+                timeout(time:240, unit:'MINUTES') {
+                    sh "ant mirrors -Denv=internal -Dcc=${params.VM}"
+                }
+            }
+        }
+
 /*
         stage("Reset Target VM's") {
-            agent {
-                label 'master'
-            }
             steps {
                 script {
                     def vms = ['bgcctbp12', 'bgcctbp13', 'bgcctbp14']
@@ -99,16 +137,6 @@ pipeline {
            }
         }        
 */
-        stage('Mirrors') {
-            agent {
-                label 'bgninjabvt11.eur.ad.sag'
-            }
-            steps {
-                unstash 'scripts'
-                timeout(time:240, unit:'MINUTES') {
-                    sh 'ant installers mirrors -Denv=internal'
-                }
-            }
-        }
+
     }
 }
