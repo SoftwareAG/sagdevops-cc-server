@@ -24,7 +24,7 @@ launch containers using your favourite Docker orchestrator.
 
 ## Requirements
 
-* You need [Apache Ant](https://ant.apache.org/) for 
+* You need [Apache Ant 1.9+](https://ant.apache.org/) for 
 [AntCC library](https://github.com/SoftwareAG/sagdevops-antcc)
 * To perform initial setup you will need direct Internet access
 
@@ -32,6 +32,9 @@ To get started clone or fork this project (you will need to customize it)
 and run git submodule initialization procedure to pull antcc library
 
 ```bash
+java -version # MUST be 1.8+
+ant -version  # MUST be 1.9+
+
 git clone https://github.com/SoftwareAG/sagdevops-cc-server
 cd sagdevops-cc-server
 git submodule init
