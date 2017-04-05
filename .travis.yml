@@ -1,7 +1,9 @@
 language: java
 jdk:
   - oraclejdk8
+env:
+  - release=default
+#  - release=10.0
 script:
-  - ant boot -Daccept.license=true
-  - ant masters test 
-  - ant installers
+  - ant boot -Daccept.license=true -Dbootstrap=$release
+  - ant masters test installers -Denv=$release

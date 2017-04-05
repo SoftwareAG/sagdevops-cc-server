@@ -4,12 +4,19 @@
 	
 	<target name="up" depends="masters,licenses,images,installers,mirrors" description="Setup everything" />
 
-	<target name="proxy" depends="waitcc,sagenvInit" description="Configure proxy and timeouts">
+	<target name="proxy" depends="waitcc,sagenvInit" description="Configure proxy">
+		<antcall target="apply">
+			<param name="t" value="templates/cc-proxy" />
+		</antcall>
+		<antcall target="restartcc" />
+	</target>
+
+	<target name="tuneup" depends="waitcc,sagenvInit" description="Configure CC timeouts">
 		<antcall target="apply">
 			<param name="t" value="templates/cc-tuneup" />
 		</antcall>
 		<antcall target="restartcc" />
-	</target>
+	</target>	
 
 	<target name="_checkenv" depends="sagenvInit">
 		<propertyfile file="${env.properties}">
@@ -28,7 +35,7 @@
 		<input message="Enter your https://empower.softwareag.com/ username (email address): " 
 			addproperty="empower.username" unless:set="empower.username" />
 
-		<input message="Enter your https://empower.softwareag.com/ password: " 
+		<input message="Enter your https://empower.softwareag.com/ password (will NOT be masked!): " 
 			addproperty="empower.password" unless:set="empower.password"/>
 
 		<echo>Storing Empower credentials in ${env.properties} for future use</echo>
