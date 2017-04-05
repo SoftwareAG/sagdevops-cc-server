@@ -59,12 +59,15 @@
 		<property name="mirror.platforms" value="${platform.uppercase}" />
 
 		<mirror type="products" release="${release}" 
-			from="webMethods-${release}" filter="" artifacts="${mirror.products}" platforms="${mirror.platforms}"/>
+			from="webMethods-${release}" filter="" 
+			artifacts="${mirror.products}" 
+			platforms="${mirror.platforms}"/>
 
 		<mirror type="fixes" release="${release}" 
 			from="Empower" 
 			filter="products-${release}" 
-			platforms="${mirror.platforms}"/>
+			platforms="${mirror.platforms}"
+			artifacts="LATEST" />
 
 		<echo>
 			Registered product repositories

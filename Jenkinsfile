@@ -45,7 +45,7 @@ pipeline {
             steps {
                 unstash 'scripts'
                 timeout(time:60, unit:'MINUTES') {
-                    sh "ant boot -Dbootstrap=${CC_ENV}" // use sh
+                    sh "ant boot --accept-license -Dbootstrap=${CC_ENV}" // use sh
                 }
             }
         }
