@@ -45,7 +45,7 @@ pipeline {
             steps {
                 unstash 'scripts'
                 timeout(time:60, unit:'MINUTES') {
-                    sh "ant boot --accept-license -Dbootstrap=${CC_ENV}" // use sh
+                    sh "ant boot -Daccept.license=true -Dbootstrap=${CC_ENV}" // use sh
                 }
             }
         }
@@ -84,7 +84,7 @@ pipeline {
             }
             steps {
                 unstash 'scripts'
-                timeout(time:10, unit:'MINUTES') {
+                timeout(time:120, unit:'MINUTES') {
                     sh "ant client -Dbootstrap=${CC_ENV}" // boot client
                     sh "ant masters test installers mirrors -Denv=${CC_ENV}" // point to the target VM
                 }
