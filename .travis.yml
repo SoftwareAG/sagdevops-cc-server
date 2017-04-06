@@ -6,4 +6,5 @@ env:
 #  - release=10.0
 script:
   - ant boot -Daccept.license=true -Dbootstrap=$release
-  - ant masters test installers mirrors -Denv=$release
+  - ant masters test -Denv=$release
+  - ant installers mirrors -Denv=$release
