@@ -8,15 +8,15 @@ changes:
 
 environments:
   default:
-    # timeout for CCE to SPM connection (minutes)
-    timeout.spm.connect.minutes: 15
-    # timeout for CCE data sync from SPM (minutes) 
-    timeout.spm.read.minutes: 15
+    # timeout for CCE to SPM connection (seconds)
+    timeout.spm.connect.seconds: 900
+    # timeout for CCE data sync from SPM (seconds) 
+    timeout.spm.read.seconds: 900
     # timeout http/socket read for product/fix repositories (milliseconds)
     timeout.repo.read.millis: 1000
     
-    # timeout for generic jobs (minutes)
-    timeout.job.minutes: 80
+    # timeout for generic jobs (seconds)
+    timeout.job.seconds: 4800
     # timeout for mirror jobs (minutes)
     timeout.job.mirror.minutes: 720
     # timeout for bootstrap jobs (minutes)
@@ -50,18 +50,17 @@ templates:
               COMMON-SYSPROPS:
                 COMMON-SYSPROPS: |  # system tuneup properties
                   com.softwareag.platform.management.job.thread.pool.size=${pool.size.jobs}
-                  com.softwareag.platform.management.job.timeout=${timeout.job.minutes}
-
-#                  com.softwareag.platform.management.mirror.job.timeout=${timeout.job.mirror.minutes}
-#                  com.softwareag.platform.management.client.provision.bootstrap.platform.manager.timeout.minutes=${timeout.job.bootstrap.minutes}
-#                  com.softwareag.platform.management.client.provision.bootstrap.node.timeout.minutes=${timeout.job.bootstrap.minutes}
-#                  com.softwareag.platform.management.client.provision.bootstrap.node.job.bootstrap.platform.manager.timeout.minutes=${timeout.job.bootstrap.minutes}
-#                  com.softwareag.platform.management.client.provision.environment.add.nodes.job.timeout.minutes=${timeout.job.bootstrap.minutes}
-#                  com.softwareag.platform.management.client.template.composite.apply.job.timeout.minutes=${timeout.job.template.minutes}
-#                  com.softwareag.platform.management.client.template.composite.node.check.online.poll.timeout.miliseconds=${timeout.status.node.seconds}000
-#                  com.softwareag.platform.management.client.template.composite.restart.online.status.poll.timeout.miliseconds=${timeout.status.runtime.seconds}000
-#                  com.softwareag.platform.management.client.remote.requests.connect.timeout=${timeout.spm.connect.minutes}
-#                  com.softwareag.platform.management.client.remote.requests.sync.read.timeout=${timeout.spm.read.minutes}
+                  com.softwareag.platform.management.job.timeout=${timeout.job.seconds}000
+                  com.softwareag.platform.management.mirror.job.timeout=${timeout.job.mirror.minutes}
+                  com.softwareag.platform.management.client.provision.bootstrap.platform.manager.timeout.minutes=${timeout.job.bootstrap.minutes}
+                  com.softwareag.platform.management.client.provision.bootstrap.node.timeout.minutes=${timeout.job.bootstrap.minutes}
+                  com.softwareag.platform.management.client.provision.bootstrap.node.job.bootstrap.platform.manager.timeout.minutes=${timeout.job.bootstrap.minutes}
+                  com.softwareag.platform.management.client.provision.environment.add.nodes.job.timeout.minutes=${timeout.job.bootstrap.minutes}
+                  com.softwareag.platform.management.client.template.composite.apply.job.timeout.minutes=${timeout.job.template.minutes}
+                  com.softwareag.platform.management.client.template.composite.node.check.online.poll.timeout.miliseconds=${timeout.status.node.seconds}000
+                  com.softwareag.platform.management.client.template.composite.restart.online.status.poll.timeout.miliseconds=${timeout.status.runtime.seconds}000
+                  com.softwareag.platform.management.client.remote.requests.connect.timeout=${timeout.spm.connect.seconds}000
+                  com.softwareag.platform.management.client.remote.requests.sync.read.timeout=${timeout.spm.read.seconds}000
 
   spm-tuneup:
     products:
@@ -71,10 +70,10 @@ templates:
             OSGI-SPM: 
               COMMON-SYSPROPS:
                 COMMON-SYSPROPS: |  # system tuneup properties
-                  com.softwareag.platform.management.job.timeout=${timeout.job.minutes}
- #                 com.softwareag.platform.management.mirror.job.timeout=${timeout.job.mirror.minutes}
-  #                org.eclipse.ecf.provider.filetransfer.retrieve.readTimeout=${timeout.repo.read.millis}
-  #                org.eclipse.ecf.provider.filetransfer.retrieve.closeTimeout=${timeout.repo.read.millis}
+                  com.softwareag.platform.management.job.timeout=${timeout.job.seconds}000
+                  com.softwareag.platform.management.mirror.job.timeout=${timeout.job.mirror.minutes}
+                  org.eclipse.ecf.provider.filetransfer.retrieve.readTimeout=${timeout.repo.read.seconds}000
+                  org.eclipse.ecf.provider.filetransfer.retrieve.closeTimeout=${timeout.repo.read.seconds}000
 
 provision:
   default:

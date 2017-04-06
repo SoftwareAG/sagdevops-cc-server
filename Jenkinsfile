@@ -71,7 +71,7 @@ pipeline {
 
         stage('Up and Test') {
             agent {
-                label 'master'
+                label params.VM + '.eur.ad.sag' // target VM
             }
             tools {
                 ant "ant-1.9.7"
@@ -81,12 +81,13 @@ pipeline {
                 // set EMPOWER_USR and EMPOWER_PSW env variables using Jenkins credentials
                 EMPOWER = credentials('empower')
                 CC_SERVER = params.VM
+                CC_CLI_HOME = '$HOME/sag/cc/CommandCentral/client'
             }
             steps {
                 unstash 'scripts'
                 timeout(time:120, unit:'MINUTES') {
-                    sh "ant client -Dbootstrap=${CC_ENV}" // boot client
-                    sh "ant masters test installers mirrors -Denv=${CC_ENV}" // point to the target VM
+                    //sh "ant client -Dbootstrap=${CC_ENV}" // boot client
+                    sh "$CC_CLI_HOME/bin/sagccant masters test installers mirrors -Denv=${CC_ENV}" // point to the target VM
                 }
             }
             post {
