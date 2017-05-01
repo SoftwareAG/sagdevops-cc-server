@@ -6,4 +6,4 @@ env:
   - release=10.0
 script:
   - ant boot -Daccept.license=true -Dbootstrap=$release
-  - ~/sag/cc/CommandCentral/client/bin/sagccant masters test installers mirrors
+  - ~/sag/cc/CommandCentral/client/bin/sagccant masters test installers mirrors -Denv=travis-ci
