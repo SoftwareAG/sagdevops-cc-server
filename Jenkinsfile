@@ -87,7 +87,7 @@ pipeline {
                 unstash 'scripts'
                 timeout(time:120, unit:'MINUTES') {
                     //sh "ant client -Dbootstrap=${CC_ENV}" // boot client
-                    sh "$CC_CLI_HOME/bin/sagccant masters test installers mirrors -Denv=${CC_ENV}" // point to the target VM
+                    sh "$CC_CLI_HOME/bin/sagccant masters test installers mirrors -Denv=test-${CC_ENV}" // point to the target VM
                 }
             }
             post {

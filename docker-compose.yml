@@ -17,6 +17,6 @@ services:
       CC_SERVER: cc
     volumes: 
       - .:/src
-    command: sagccant waitcc test -Dcc=docker-compose
+    command: sagccant waitcc test
     depends_on: 
       - cc

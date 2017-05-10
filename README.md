@@ -1,22 +1,24 @@
+[![Build Status](https://travis-ci.org/SoftwareAG/sagdevops-cc-server.svg?branch=master)](https://travis-ci.org/SoftwareAG/sagdevops-cc-server/builds)
+
 # Command Central server setup
 
-This project automates Command Central initial setup:
+This project automates Command Central 9.12 and 10.0 setup:
 
-* Download bootstrap installer for your OS from SDC
-* Run bootstrap installer
-* Configure HTTP/S proxy
-* Register master repositories
-* Upload license keys
-* Upload product and fix images
-* Create mirror repositories
+* Downloads latest fix level bootstrap installer for your platform
+* Runs bootstrap installer
+* Configures HTTP/S proxy
+* Registers master repositories
+* Uploads license keys
+* Uploads product and fix images
+* Creates mirror repositories
 
-You can use this project to maintain your Command Central:
+You can also use this project to maintain your Command Central installation:
 
-* Pull the latest fixes/products into mirror repositories
+* Pull the latest fixes and products into mirror repositories
 * Update Command Central to the latest patch level
-* Upgrade Command Central to a new release
+* Upgrade Command Central to a new release (from 9.x to 9.12/10.0)
 * Start/stop/restart Command Central
-* Check jobs and logs
+* Check jobs status and tail the logs
 
 You can also build customized Command Central Docker image to 
 launch containers using your favourite Docker orchestrator.
@@ -24,17 +26,13 @@ launch containers using your favourite Docker orchestrator.
 
 ## Requirements
 
-* You need [Apache Ant 1.9+](https://ant.apache.org/) for 
-[AntCC library](https://github.com/SoftwareAG/sagdevops-antcc)
-* To perform initial setup you will need direct Internet access
+* Git client
+* Internet access
 
 To get started clone or fork this project (you will need to customize it)
 and run git submodule initialization procedure to pull antcc library
 
 ```bash
-java -version # MUST be 1.8+
-ant -version  # MUST be 1.9+
-
 git clone https://github.com/SoftwareAG/sagdevops-cc-server
 cd sagdevops-cc-server
 git submodule init
@@ -43,13 +41,60 @@ git submodule update
 
 Verify that your _antcc_ folder is not empty.
 
+## Bootstrap Command Central client
 
-## Quick Start
+TIP: If you have Java 1.8+ and Apache Ant 1.9+ you can skip this section.
 
-Bootstrap the latest version of Command Central server:
+
+If you don't have Java or Ant on your system you can download and bootstrap
+just the client that comes with Java and Ant distribution
+
+For Linux:
+
+```bash
+curl -O http://empowersdc.softwareag.com/ccinstallers/cc-def-9.12-fix5-lnxamd64.sh
+chmod +x cc-def-9.12-fix5-lnxamd64.sh
+./cc-def-9.12-fix5-lnxamd64.sh -D CLI -d ~/.sag/cli
+source ~/.bashrc
+```
+
+For Windows:
+
+* Download [http://empowersdc.softwareag.com/ccinstallers/cc-def-9.12-fix5-w64.zip]
+* Unzip cc-def-9.12-fix5-w64.zip
+* Run (As Administrator) cc-def-9.12-release-w64 -D CLI -d %HOME%\.sag\cli
+
+
+Verify by running in a new shell window:
+
+```bash
+sagccant -version # MUST be 1.9+
+```
+
+## Bootstrap Command Central using Ant wrapper
+
+To use bootstrap Ant wrapper script you need:
+
+* Java 1.8 
+* [Apache Ant 1.8+](https://ant.apache.org/)
+
+Verify by running: 
+
+```bash
+java -version # MUST be 1.8+
+ant -version  # MUST be 1.9+
+```
+
+Bootstrap the latest version of Command Central 9.12:
 
 ```bash
 ant boot -Daccept.license=true
+```
+
+To bootstrap Command Central 10.0 run this command instead:
+
+```bash
+ant boot -Daccept.license=true -Dbootstrap=10.0
 ```
 
 IMPORTANT: By setting ```accept.license=true``` property 
@@ -87,8 +132,8 @@ The bootstrap process is complete.
 
 You can customize configuration for the bootstrap process.
 
-Edit [bootstrap/default.properties](bootstrap/default.properties) and uncomment the following property
-to accept the license agreement:
+Copy [bootstrap/default.properties](bootstrap/default.properties) into a new YOUR_BOOT_NAME.properties file.
+Uncomment the following property to accept the license agreement:
 
 ```
 accept.license=true
@@ -99,7 +144,7 @@ Review and modify any other properties as needed.
 Run bootstrap process using the default properties file:
 
 ```bash
-ant boot
+ant boot -Dbootstrap=YOUR_BOOT_NAME
 ```
 
 NOTE: most of the properties are applicable only for a new boostrap session. If you already bootstraped
@@ -107,21 +152,19 @@ Command Central they will NOT apply for this installation.
 You can re-bootstrap Command Central by running this command:
 
 ```bash
-ant uninstall boot
+ant uninstall boot -Dbootstrap=YOUR_BOOT_NAME
 ```
 
 The downloaded bootstrap installer file will be reused (not downloaded again).
 
-
 ## Customizing Command Central configuration
-
 
 ### Configure proxy connection
 
 If you have direct connection to the Internet you can skip this step.
 
-If you have a proxy server update [environments/default/env.properties](environments/default/env.properties) with 
-your HTTP/S proxy configuration:
+If you have a proxy server copy [environments/default/env.properties](environments/default/env.properties) 
+into a new environments/YOUR_ENV_NAME/env.properties file and update it with your HTTP/S proxy configuration:
 
 ```
 proxy.http.host=YOURPROXYHOST
@@ -132,7 +175,7 @@ proxy.http.nonproxyhosts=localhost|.my.domain
 Then run:
 
 ```bash
-ant proxy
+sagccant proxy -Denv=YOUR_ENV_NAME
 ```
 
 
@@ -148,10 +191,10 @@ with permissions to download products and fixes.
 When you run:
 
 ```bash
-ant masters
+sagccant masters -Denv=YOUR_ENV_NAME
 ```
 
-Command Central will check [environments/default/env.properties](environments/default/env.properties)
+Command Central will check environments/YOUR_ENV_NAME/env.properties
 first and if the credentials are not configured there it will ask you to provide them.
 It then will store them in the env.properties file for later use.
 
@@ -163,7 +206,7 @@ empower.password=YOUR_PASSWORD
 Verify successful master repositories setup:
 
 ```bash
-ant test
+sagccant test -Denv=YOUR_ENV_NAME
 ```
 
 ### Add license keys
@@ -174,8 +217,7 @@ however it is recommended to add all your license keys now.
 Place your SAG products license key .xml files under _./licenses/<platform>_ folder.
 
 You can customize the location of the licenses folder in 
-[environments/default/env.properties](environments/default/env.properties)
-by setting this property:
+environments/YOUR_ENV_NAME/env.properties by setting this property:
 
 ```
 licenses.dir=/path/to/licenses/
@@ -198,10 +240,17 @@ licenses\
    ...
 ```
 
+Alternatively you can specify the URL to download the archive with our license files.
+The folder structure of the .zip needs to be the same as above.
+
+```
+licenses.zip.url=http://YOUR_LICENSES.zip
+```
+
 Run this command to import license files:
 
 ```bash
-ant licenses
+sagccant licenses -Denv=YOUR_ENV_NAME
 ```
 
 You can run this command again any time to add upload new license keys.
@@ -219,7 +268,7 @@ If you want to upload SAG Update Manager images place the image
 .zip files under _./images/fixes_ folder.
 
 You can customize the location of the images folder in 
-[environments/default/env.properties](environments/default/env.properties)
+environments/YOUR_ENV_NAME/env.properties 
 by setting this property:
 
 ```
@@ -240,7 +289,7 @@ fixes\
 Run this command to upload image files:
 
 ```bash
-ant images
+sagccant images -Denv=YOUR_ENV_NAME
 ```
 
 You can run this command again any time to add upload new images.
@@ -253,7 +302,7 @@ NOTE: this process may take a long time and requires up to 10GB of space on aver
 if you mirror all products.
 
 You can customize which release and which products/fixes to mirror using 
-[environments/default/env.properties](environments/default/env.properties)
+environments/YOUR_ENV_NAME/env.properties 
 by setting this property:
 
 ```
@@ -267,7 +316,7 @@ and tick _Show ID Column_ checkbox in the gear menu.
 To start mirrors create or update process run:
 
 ```bash
-ant mirrors
+sagccant mirrors -Denv=YOUR_ENV_NAME
 ```
 
 NOTE: fix mirror will download fixes only for the products in your product mirror
@@ -282,7 +331,7 @@ IMPORTANT: To ensure your entire customized setup runs cleanly perform end-to-en
 Adjust 'up' target in [build.xml](build.xml) with the targets that are applicable to your setup and run:
 
 ```
-ant uninstall boot up test 
+sagccant uninstall boot up test -Dboostrap=YOUR_BOOT_NAME -Denv=YOUR_ENV_NAME
 ```
 
 The succesful test run will end with something like this:
@@ -305,7 +354,7 @@ Now you can pull and run this project on any other host to perform identical ful
 of your customized Command Central server:
 
 ```
-ant boot up 
+sagccant boot up -Dboostrap=YOUR_BOOT_NAME -Denv=YOUR_ENV_NAME
 ```
 
 ## Cleanup
@@ -313,7 +362,7 @@ ant boot up
 To uninstall Command Central run:
 
 ```bash
-ant uninstall
+ant uninstall -Dboostrap=YOUR_BOOT_NAME
 ```
 
 # Building Docker image with customized Command Central server
