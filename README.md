@@ -1,5 +1,9 @@
 [![Build Status](https://travis-ci.org/SoftwareAG/sagdevops-cc-server.svg?branch=master)](https://travis-ci.org/SoftwareAG/sagdevops-cc-server/builds)
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 68d109b408d34ae8ecf3d585a75d9702bae361a0
 # Command Central server setup
 
 This project automates Command Central 9.12 and 10.0 setup:
@@ -447,7 +451,7 @@ Now you can use the docker image you've built in any other project
 ```bash
 docker run --name mycc -d -p 8091:8091 mycc:9.12
 ```
-
-
+_____________
+Contact us at [TECHcommunity](mailto:technologycommunity@softwareag.com?subject=Github/SoftwareAG) if you have any questions.
 ___________________
 These tools are provided as-is and without warranty or support. They do not constitute part of the Software AG product suite. Users are free to use, fork and modify them, subject to the license agreement. While Software AG welcomes contributions, we cannot guarantee to include every contribution in the master project.
