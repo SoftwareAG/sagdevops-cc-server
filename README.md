@@ -1,9 +1,5 @@
 [![Build Status](https://travis-ci.org/SoftwareAG/sagdevops-cc-server.svg?branch=master)](https://travis-ci.org/SoftwareAG/sagdevops-cc-server/builds)
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 68d109b408d34ae8ecf3d585a75d9702bae361a0
 # Command Central server setup
 
 This project automates Command Central 9.12 and 10.0 setup:
