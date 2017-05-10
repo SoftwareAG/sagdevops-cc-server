@@ -20,7 +20,7 @@ You can also use this project to maintain your Command Central installation:
 * Start/stop/restart Command Central
 * Check jobs status and tail the logs
 
-You can also build customized Command Central Docker image to 
+You can also build customized Command Central [Docker image](docker.md) to 
 launch containers using your favourite Docker orchestrator.
 
 
@@ -33,13 +33,9 @@ To get started clone or fork this project (you will need to customize it)
 and run git submodule initialization procedure to pull antcc library
 
 ```bash
-git clone https://github.com/SoftwareAG/sagdevops-cc-server
+git clone --recursive https://github.com/SoftwareAG/sagdevops-cc-server
 cd sagdevops-cc-server
-git submodule init
-git submodule update
 ```
-
-Verify that your _antcc_ folder is not empty.
 
 ## Bootstrap Command Central client
 
@@ -52,16 +48,16 @@ just the client that comes with Java and Ant distribution
 For Linux:
 
 ```bash
-curl -O http://empowersdc.softwareag.com/ccinstallers/cc-def-9.12-fix5-lnxamd64.sh
-chmod +x cc-def-9.12-fix5-lnxamd64.sh
-./cc-def-9.12-fix5-lnxamd64.sh -D CLI -d ~/.sag/cli
+curl -O http://empowersdc.softwareag.com/ccinstallers/cc-def-9.12-fix7-lnxamd64.sh
+chmod +x cc-def-9.12-fix7-lnxamd64.sh
+./cc-def-9.12-fix7-lnxamd64.sh -D CLI -d ~/.sag/cli
 source ~/.bashrc
 ```
 
 For Windows:
 
-* Download [http://empowersdc.softwareag.com/ccinstallers/cc-def-9.12-fix5-w64.zip]
-* Unzip cc-def-9.12-fix5-w64.zip
+* Download [http://empowersdc.softwareag.com/ccinstallers/cc-def-9.12-fix7-w64.zip]
+* Unzip cc-def-9.12-fix7-w64.zip
 * Run (As Administrator) cc-def-9.12-release-w64 -D CLI -d %HOME%\.sag\cli
 
 
@@ -71,7 +67,7 @@ Verify by running in a new shell window:
 sagccant -version # MUST be 1.9+
 ```
 
-## Bootstrap Command Central using Ant wrapper
+## Bootstrap Command Central server using Ant wrapper
 
 To use bootstrap Ant wrapper script you need:
 
@@ -122,7 +118,7 @@ the specified credentials.
 Verify client connectivity to the Command Central server:
 
 ```bash
-ant waitcc
+sagccant waitcc
 ```
 
 The bootstrap process is complete.
@@ -244,7 +240,7 @@ Alternatively you can specify the URL to download the archive with our license f
 The folder structure of the .zip needs to be the same as above.
 
 ```
-licenses.zip.url=http://YOUR_LICENSES.zip
+licenses.zip.url=http://host:port/YOUR_LICENSES.zip
 ```
 
 Run this command to import license files:
@@ -362,91 +358,9 @@ sagccant boot up -Dboostrap=YOUR_BOOT_NAME -Denv=YOUR_ENV_NAME
 To uninstall Command Central run:
 
 ```bash
-ant uninstall -Dboostrap=YOUR_BOOT_NAME
+sagccant uninstall -Dboostrap=YOUR_BOOT_NAME
 ```
 
-# Building Docker image with customized Command Central server
-
-You can package all your customizations done above into a Docker image
-so that you can quickly launch new instances of Command Central for each of
-your CD stages or for CI testing.
-
-## Requirements
-
-Before you start ensure you have installed [Docker](https://www.docker.com/products/overview)
-including docker-compose tool.
-
-There are no other requirements. You don't even have to have local Java or Apache Ant.
-
-## Building Docker image
-
-By default the image build runs only 'masters licenses' targets. You can 
-adjust that by modifying RUN command in the main [Dockerfile](Dockerfile).
-
-IMPORTANT: to build Docker image all license and image files MUST be in default location
-folders under this project. Docker sends all these files as build context. Docker cannot send files ouside
-of the current folder!
-
-NOTE: including product or fix image files and creating mirror repositories will significatly increase
-Command Central Docker image size!
-
-To build customized image for Command Central run:
-
-```bash
-docker-compose build cc
-```
-Successful execution will end with something like this
-
-```bash
-BUILD SUCCESSFUL
-Total time: 1 minute 21 seconds
- ---> d17f77f1cfcb
-Removing intermediate container 6ab350c69242
-Successfully built d17f77f1cfcb
-Creating sagdevopsccserver_cc_1
-```
-
-## Running custom built Command Central container
-
-Run this command to launch your Command Central server container:
-
-```bash
-docker-compose up -d cc
-```
-
-Open [https://localhost:8091/](https://localhost:8091/)
-
-To verify successful master repositories setup run:
-
-```bash
-docker-compose run --rm test 
-```
-
-NOTE: it may take few minutes to complete, depending on the network speed
-
-The successful result would look like this
-
-```bash
-[au:antunit] Target: test-repos-fixes-listing took 1.082 sec
-[au:antunit] Target: test-client took 0.181 sec
-[au:antunit] Target: test-repos-prods took 1.057 sec
-[au:antunit] Target: test-repos-prods-listing took 111.189 sec
-[au:antunit] Target: test-repos-fixes took 1.065 sec
-
-BUILD SUCCESSFUL
-Total time: 1 minute 56 seconds
-```
-
-To cleanup running containers run:
-
-```bash
-docker-compose down
-```
-Now you can use the docker image you've built in any other project
-
-```bash
-docker run --name mycc -d -p 8091:8091 mycc:9.12
-```
 _____________
 Contact us at [TECHcommunity](mailto:technologycommunity@softwareag.com?subject=Github/SoftwareAG) if you have any questions.
 ___________________
