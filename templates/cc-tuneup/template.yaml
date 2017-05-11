@@ -13,7 +13,7 @@ environments:
     # timeout for CCE data sync from SPM (seconds) 
     timeout.spm.read.seconds: 900
     # timeout http/socket read for product/fix repositories (milliseconds)
-    timeout.repo.read.millis: 1000
+    timeout.repo.read.seconds: 5
     
     # timeout for generic jobs (seconds)
     timeout.job.seconds: 4800
