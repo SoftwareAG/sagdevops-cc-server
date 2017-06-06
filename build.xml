@@ -167,7 +167,10 @@
 		<mkdir dir="${installers.dir}" />
 
 		<property file="${env.properties}" />
-		<property name="installers" value="" />
+		
+		<!-- default value: comma delimited list of all installers to download -->
+		<property name="installers" value="${installer}.${file.extension}" />
+
 		<echo>
 			Downloading requested installers: ${installers} ...
 		</echo>
