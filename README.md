@@ -72,7 +72,7 @@ sagccant -version # MUST be 1.9+
 To use bootstrap Ant wrapper script you need:
 
 * Java 1.8 
-* [Apache Ant 1.8+](https://ant.apache.org/)
+* [Apache Ant 1.9+](https://ant.apache.org/)
 
 Verify by running: 
 
