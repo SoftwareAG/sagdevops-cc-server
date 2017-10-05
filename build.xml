@@ -16,17 +16,43 @@
 			<param name="t" value="templates/cc-tuneup" />
 		</antcall>
 		<antcall target="restartcc" />
-	</target>	
-
-	<target name="_checkenv" depends="sagenvInit">
-		<propertyfile file="${env.properties}">
-			<entry key="empower.username" value="${env.EMPOWER_USR}" if:set="env.EMPOWER_USR" />
-			<entry key="empower.password" value="${env.EMPOWER_PSW}" if:set="env.EMPOWER_PSW"/>
-		</propertyfile>
-		<property file="${env.properties}" />
 	</target>
 
-	<target name="_empowercreds" depends="_checkenv" unless="empower.password">
+    <target name="_cleanpassword" depends="sagenvInit">
+        <propertyfile file="${env.properties}">
+            <entry key="empower.username" value="" if:set="env.EMPOWER_USR" />
+            <entry key="empower.password" value="" if:set="env.EMPOWER_PSW" />
+        </propertyfile>
+    </target>
+
+    <macrodef name="set-property-if-nonempty">
+        <attribute name="name" />
+        <attribute name="if-property-isset" />
+        <attribute name="value" default="${@{if-property-isset}}" />
+
+        <sequential>
+            <condition property="@{name}" value="@{value}">
+                <and>
+                    <isset property="@{if-property-isset}" />
+                    <not>
+                        <equals arg1="${@{if-property-isset}}" arg2="" />
+                    </not>
+                </and>
+            </condition>
+        </sequential>
+    </macrodef>
+
+    <target name="_empowercreds_checkenv" depends="sagenvInit">
+        <set-property-if-nonempty name="empower.username" if-property-isset="env.EMPOWER_USR" />
+        <set-property-if-nonempty name="empower.password" if-property-isset="env.EMPOWER_PSW" />
+        <propertyfile file="${env.properties}">
+            <entry key="empower.username" value="${empower.username}" if:set="empower.username" />
+            <entry key="empower.password" value="${empower.password}" if:set="empower.password"/>
+        </propertyfile>
+        <property file="${env.properties}" />
+    </target>
+
+	<target name="_empowercreds" depends="_empowercreds_checkenv" unless="empower.password">
 		<echo>
 			Empower credentials are not provided in ${env.properties}
 			Please provide them now
@@ -50,6 +76,9 @@
 		<antcall target="apply">
 			<param name="t" value="templates/sag-repos" />
 		</antcall>
+
+        <!-- clean password from env file if those were added from env variables -->
+        <antcall target="_cleanpassword" />
 	</target>
 
 	<target name="mirrors" depends="_prepare,waitcc,sagenvInit" description="Create/update mirror repositories">
