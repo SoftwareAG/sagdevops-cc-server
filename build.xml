@@ -4,6 +4,7 @@
 	
 	<target name="up" depends="tuneup,credentials,masters,licenses,images,installers,mirrors" description="Setup everything" />
 
+	<!-- TBD: Move to antcc/sagrepo? -->
 	<target name="proxy" depends="waitcc,sagenvInit" description="Configure proxy">
 		<antcall target="apply">
 			<param name="t" value="templates/cc-proxy" />
@@ -11,6 +12,7 @@
 		<antcall target="restartcc" />
 	</target>
 
+	<!-- TBD: Move to antcc/sagrepo? -->
 	<target name="tuneup" depends="waitcc,sagenvInit" description="Tune up Command Central">
 		<antcall target="apply">
 			<param name="t" value="templates/cc-tuneup" />
@@ -18,6 +20,7 @@
 		<antcall target="restartcc" />
 	</target>	
 
+	<!-- TBD: Move to antcc/sagrepo? -->
 	<target name="credentials" depends="sagenvInit" description="Configure credentials" >
 		<!-- env vars have presedence over env.properties -->
 		<property name="empower.username" value="${env.EMPOWER_USR}" if:set="env.EMPOWER_USR" />
@@ -60,9 +63,17 @@
 
 	</target>
 
+	<!-- TBD: Move to antcc/sagrepo? -->
 	<target name="masters" depends="waitcc,sagenvInit" description="Register master repositories">
 		<antcall target="apply">
 			<param name="t" value="templates/sag-repos" />
+		</antcall>
+	</target>
+
+	<!-- TODO: better name? Move to antcc/sagrepo? -->
+	<target name="mirrors2" depends="waitcc,sagenvInit" description="Connect remote mirrors">
+		<antcall target="apply">
+			<param name="t" value="templates/cc-mirrors" />
 		</antcall>
 	</target>
 

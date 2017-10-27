@@ -1,8 +1,6 @@
 alias: sag-repos
 description: Default master repositories registration
-version: 0.1
-changes:
-  - 0.1 Initial draft
+version: 10.1
 
 repositories:
   product:                      # all supported releases

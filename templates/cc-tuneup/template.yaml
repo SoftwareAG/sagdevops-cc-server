@@ -1,6 +1,6 @@
 alias: cc-tuneup
 description: Tune up Command Central
-version: 0.4
+version: 10.1
 changes:
   - 0.1 Timeouts, pool sizes
   - 0.2 HTTP/S proxy config
