@@ -4,36 +4,29 @@ version: 0.1
 changes:
   - 0.1 Initial draft
 
-environments:
-  default:                      # Input parameters
-    empower.username: ${}       # REQUIRED, username on https://empower.softwareag.com/
-    empower.password: ${}       # REQUIRED, password
-
 repositories:
   product:                      # all supported releases
-#    webMethods-10.0:           
-#      location: http://sdc.softwareag.com/dataservewebM100/repository/
-#      username: ${empower.username}
-#      password: ${empower.password}
-#      description: Innovation release
+    webMethods-10.1:           
+      location: http://sdc.softwareag.com/dataservewebM101/repository/
+      credentials: EMPOWER
+      description: Latest GA 
+    webMethods-10.0:           
+      location: http://sdc.softwareag.com/dataservewebM100/repository/
+      credentials: EMPOWER
+      description: Innovation release
     webMethods-9.12:           
       location: http://sdc.softwareag.com/dataservewebM912/repository/
-      username: ${empower.username}
-      password: ${empower.password}
+      credentials: EMPOWER
     webMethods-9.10:
       location: http://sdc.softwareag.com/dataservewebM910/repository/
-      username: ${empower.username}
-      password: ${empower.password}
+      credentials: EMPOWER
     webMethods-9.9:
       location: http://sdc.softwareag.com/dataservewebM99/repository/
-      username: ${empower.username}
-      password: ${empower.password}
+      credentials: EMPOWER
     webMethods-9.8:
       location: http://sdc.softwareag.com/dataservewebM98/repository/
-      username: ${empower.username}
-      password: ${empower.password}
+      credentials: EMPOWER
  
   fix:                          # public fix repository for all versions
     Empower:
-      username: ${empower.username}
-      password: ${empower.password}
+      credentials: EMPOWER

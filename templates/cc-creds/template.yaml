@@ -1,0 +1,37 @@
+alias: cc-creds
+description: Basic credentials
+
+environments:
+  default:                      
+    empower.username: ${}       # REQUIRED, username on https://empower.softwareag.com/
+    empower.password: ${}       # REQUIRED, password
+
+layers:
+  cce:
+    templates:
+      - creds
+
+templates:
+  creds:
+    products:
+      CCE:
+        default:
+          configuration:
+            OSGI-CCE-ENGINE:              
+              COMMON-CREDENTIALS:
+                COMMON-CREDENTIALS-EMPOWER:
+                    "@alias": EMPOWER
+                    AuthenticationType: BASIC
+                    UserName: "${empower.username}"
+                    Password: "${empower.password}"
+                    Description: "empower.softwareag.com Download Center"
+                COMMON-CREDENTIALS-SECURE_ADMINISTRATOR:
+                    "@alias": SECURE_ADMINISTRATOR
+                    AuthenticationType: BASIC
+                    UserName: Administrator
+                    Password: manage123          
+                    Description: "Custom Administrator password"    
+provision:
+  default:
+    cce:  
+      - local

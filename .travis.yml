@@ -2,8 +2,8 @@ language: java
 jdk:
   - oraclejdk8
 env:
-  - release=9.12
-  - release=10.0
+#  - release=9.12
+  - release=10.1
 script:
-  - ant boot -Daccept.license=true -Dbootstrap=$release
-  - ~/sag/cc/CommandCentral/client/bin/sagccant masters test installers mirrors -Denv=travis-ci
+  - ant boot -Daccept.license=true
+  - ~/sag/cc/CommandCentral/client/bin/sagccant credentials masters test installers mirrors -Denv=travis-ci -Drelease=$release

@@ -1,8 +1,8 @@
 [![Build Status](https://travis-ci.org/SoftwareAG/sagdevops-cc-server.svg?branch=master)](https://travis-ci.org/SoftwareAG/sagdevops-cc-server/builds)
 
-# Command Central server setup
+# Command Central 10.1 server setup
 
-This project automates Command Central 9.12 and 10.0 setup:
+This project automates Command Central 10.1 setup:
 
 * Downloads latest fix level bootstrap installer for your platform
 * Runs bootstrap installer
@@ -16,13 +16,9 @@ You can also use this project to maintain your Command Central installation:
 
 * Pull the latest fixes and products into mirror repositories
 * Update Command Central to the latest patch level
-* Upgrade Command Central to a new release (from 9.x to 9.12/10.0)
+* Upgrade Command Central to a new release (from 9.x to 10.1)
 * Start/stop/restart Command Central
 * Check jobs status and tail the logs
-
-You can also build customized Command Central [Docker image](docker.md) to 
-launch containers using your favourite Docker orchestrator.
-
 
 ## Requirements
 
@@ -41,25 +37,23 @@ cd sagdevops-cc-server
 
 TIP: If you have Java 1.8+ and Apache Ant 1.9+ you can skip this section.
 
-
 If you don't have Java or Ant on your system you can download and bootstrap
 just the client that comes with Java and Ant distribution
 
 For Linux:
 
 ```bash
-curl -O http://empowersdc.softwareag.com/ccinstallers/cc-def-9.12-fix7-lnxamd64.sh
-chmod +x cc-def-9.12-fix7-lnxamd64.sh
-./cc-def-9.12-fix7-lnxamd64.sh -D CLI -d ~/.sag/cli
+curl -O http://empowersdc.softwareag.com/ccinstallers/cc-def-10.1-fix1-lnxamd64.sh
+chmod +x cc-def-10.1-fix1-lnxamd64.sh
+./cc-def-10.1-fix1-lnxamd64.sh -D CLI -d ~/.sag/cli
 source ~/.bashrc
 ```
 
 For Windows:
 
-* Download [http://empowersdc.softwareag.com/ccinstallers/cc-def-9.12-fix7-w64.zip]
-* Unzip cc-def-9.12-fix7-w64.zip
-* Run (As Administrator) cc-def-9.12-release-w64 -D CLI -d %HOME%\.sag\cli
-
+* Download [http://empowersdc.softwareag.com/ccinstallers/cc-def-10.1-fix1-w64.zip]
+* Unzip cc-def-10.1-fix1-w64.zip
+* Run (As Administrator) cc-def-10.1-release-w64 -D CLI -d %HOME%\.sag\cli
 
 Verify by running in a new shell window:
 
@@ -71,10 +65,10 @@ sagccant -version # MUST be 1.9+
 
 To use bootstrap Ant wrapper script you need:
 
-* Java 1.8 
+* Java 1.8
 * [Apache Ant 1.9+](https://ant.apache.org/)
 
-Verify by running: 
+Verify by running:
 
 ```bash
 java -version # MUST be 1.8+
@@ -87,20 +81,14 @@ Bootstrap the latest version of Command Central 9.12:
 ant boot -Daccept.license=true
 ```
 
-To bootstrap Command Central 10.0 run this command instead:
-
-```bash
-ant boot -Daccept.license=true -Dbootstrap=10.0
-```
-
-IMPORTANT: By setting ```accept.license=true``` property 
+IMPORTANT: By setting ```accept.license=true``` property
 you are accepting [End User License Agreement](http://documentation.softwareag.com/legal/general_license.txt)
 
 The command will download the bootstrap installer for your operating system and run it for you.
 This may take up to 30 minutes.
 Then the installer is executed and the output would look like this:
 
-```
+```bash
 [exec] ####
 [exec] #### You can logon to Command Central Web UI as Administrator/manage
 [exec] ####
@@ -123,7 +111,6 @@ sagccant waitcc
 
 The bootstrap process is complete.
 
-
 ## Customizing bootstrap process
 
 You can customize configuration for the bootstrap process.
@@ -144,7 +131,7 @@ ant boot -Dbootstrap=YOUR_BOOT_NAME
 ```
 
 NOTE: most of the properties are applicable only for a new boostrap session. If you already bootstraped
-Command Central they will NOT apply for this installation. 
+Command Central they will NOT apply for this installation.
 You can re-bootstrap Command Central by running this command:
 
 ```bash
@@ -159,7 +146,7 @@ The downloaded bootstrap installer file will be reused (not downloaded again).
 
 If you have direct connection to the Internet you can skip this step.
 
-If you have a proxy server copy [environments/default/env.properties](environments/default/env.properties) 
+If you have a proxy server copy [environments/default/env.properties](environments/default/env.properties)
 into a new environments/YOUR_ENV_NAME/env.properties file and update it with your HTTP/S proxy configuration:
 
 ```
@@ -174,74 +161,59 @@ Then run:
 sagccant proxy -Denv=YOUR_ENV_NAME
 ```
 
-
 ### Register master repositories for products and fixes
 
 If this Command Central does not have access to the Internet you can skip this step.
 
 IMPORTANT: Your _gateway_ or _development_ Command Central should have access to the Internet.
 
-To register master repositories Command Central needs your [Empower](https://empower.softwareag.com/) credentials 
+To register master repositories Command Central needs your [Empower](https://empower.softwareag.com/) credentials
 with permissions to download products and fixes.
 
-When you run:
+Run this command to enter the credentials and store them in Command Central:
 
 ```bash
-sagccant masters -Denv=YOUR_ENV_NAME
+sagccant credentials
 ```
 
-Command Central will check environments/YOUR_ENV_NAME/env.properties
-first and if the credentials are not configured there it will ask you to provide them.
-It then will store them in the env.properties file for later use.
+IMPORTANT: If you run this setup on a CI server you can pass credentials via environment variables:
 
+```bash
+export EMPOWER_USR=you@company.com
+export EMPOWER_PWD=empowerpassword
+sagccant credentials
 ```
-empower.username=YOUR_EMPOWER_USERNAME
-empower.password=YOUR_PASSWORD
+
+See [Jenkinsfile](Jenkinsfile) for example.
+
+Register all Software AG master repositories in Command Central:
+
+```bash
+sagccant masters
 ```
 
 Verify successful master repositories setup:
 
 ```bash
-sagccant test -Denv=YOUR_ENV_NAME
+sagccant test
 ```
 
-### Add license keys
+### Import license keys
 
 If you can skip this step if you plan on adding your license keys for each individual project,
 however it is recommended to add all your license keys now.
 
-Place your SAG products license key .xml files under _./licenses/<platform>_ folder.
+Replace sample licenses/licenses.zip with your licenses.zip archive.
 
-You can customize the location of the licenses folder in 
+You can customize the location of the licenses archive in
 environments/YOUR_ENV_NAME/env.properties by setting this property:
 
-```
-licenses.dir=/path/to/licenses/
-```
-
-IMPORTANT: the structure of the licenses.dir folder must be the following:
-
-```
-licenses\
-   any\
-      license-key-for-any-OS.txt
-      license-key-for-any-OS.xml
-      ...
-   w64\
-      any-windows-license-key.xml
-      ...
-   lnxamd64\
-      any-linux-license-key.xml
-      ...
-   ...
+```bash
+licenses.zip.url=http://url/to/licenses.zip
 ```
 
-Alternatively you can specify the URL to download the archive with our license files.
-The folder structure of the .zip needs to be the same as above.
-
-```
-licenses.zip.url=http://host:port/YOUR_LICENSES.zip
-```
+IMPORTANT: the structure of the licenses.zip is not important. Command Central 10.1 will introspect
+the archive and import found licences with auto generated aliases.
 
 Run this command to import license files:
 
@@ -251,23 +223,23 @@ sagccant licenses -Denv=YOUR_ENV_NAME
 
 You can run this command again any time to add upload new license keys.
 
-### Add product and fix images 
+### Add product and fix images
 
 You can skip this step if you're planning to use only master and mirror repositories.
 
 Use of image repositories is discouraged.
 
-If you want to upload SAG Installer images to Command Central place the image 
+If you want to upload SAG Installer images to Command Central place the image
 .zip files under _./images_/products folder.
 
-If you want to upload SAG Update Manager images place the image 
+If you want to upload SAG Update Manager images place the image
 .zip files under _./images/fixes_ folder.
 
-You can customize the location of the images folder in 
-environments/YOUR_ENV_NAME/env.properties 
+You can customize the location of the images folder in
+environments/YOUR_ENV_NAME/env.properties
 by setting this property:
 
-```
+```bash
 images.dir=/path/to/images/
 ```
 
@@ -279,7 +251,7 @@ products\
     my-9.12-products-w64.zip
 fixes\
     my-9.12-fixes.zip
-    my-9.10-fixes.zip  
+    my-9.10-fixes.zip
 ```
 
 Run this command to upload image files:
@@ -297,13 +269,21 @@ You should create mirror repositories to improve provisioning performance.
 NOTE: this process may take a long time and requires up to 10GB of space on average per release
 if you mirror all products.
 
-You can customize which release and which products/fixes to mirror using 
-environments/YOUR_ENV_NAME/env.properties 
-by setting this property:
+You can customize which release and which products/fixes to mirror using
+environments/YOUR_ENV_NAME/env.properties
+by setting these properties:
 
-```
-release=9.x
+```bash
+release=10.1
+# from
+mirror.repo.product=webMethods-${release}
+mirror.repo.fix=Empower
+# which products
 mirror.products=productId1,productId2,...
+# which platforms
+mirror.platforms=W64,LNXAMD64,OSX
+# hosting spm URL
+#mirror.spm=http://cc:8092
 ```
 
 TIP: To find out product ids, open Command Central Web UI, webMethods-${release} repository content view
@@ -326,13 +306,13 @@ IMPORTANT: To ensure your entire customized setup runs cleanly perform end-to-en
 
 Adjust 'up' target in [build.xml](build.xml) with the targets that are applicable to your setup and run:
 
-```
+```bash
 sagccant uninstall boot up test -Dboostrap=YOUR_BOOT_NAME -Denv=YOUR_ENV_NAME
 ```
 
 The succesful test run will end with something like this:
 
-```
+```bash
 [au:antunit] Environment configuration: environments/test/env.properties
 [au:antunit] ------------- ---------------- ---------------
 [au:antunit] Target: test-repos-master-prods took 1.103 sec
@@ -349,7 +329,7 @@ Commit your changes to your target version control system, e.g. forked project o
 Now you can pull and run this project on any other host to perform identical fully automated setup
 of your customized Command Central server:
 
-```
+```bash
 sagccant boot up -Dboostrap=YOUR_BOOT_NAME -Denv=YOUR_ENV_NAME
 ```
 
