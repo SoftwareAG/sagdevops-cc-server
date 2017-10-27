@@ -2,7 +2,7 @@
 <project xmlns="antlib:org.apache.tools.ant" basedir="." default="up" xmlns:if="ant:if" xmlns:unless="ant:unless" >
 	<import file="antcc/main.xml" />
 	
-	<target name="up" depends="tuneup,masters,licenses,images,installers,mirrors" description="Setup everything" />
+	<target name="up" depends="tuneup,credentials,masters,licenses,images,installers,mirrors" description="Setup everything" />
 
 	<target name="proxy" depends="waitcc,sagenvInit" description="Configure proxy">
 		<antcall target="apply">
@@ -11,25 +11,24 @@
 		<antcall target="restartcc" />
 	</target>
 
-	<target name="tuneup" depends="waitcc,sagenvInit" description="Configure CC timeouts">
+	<target name="tuneup" depends="waitcc,sagenvInit" description="Tune up Command Central">
 		<antcall target="apply">
 			<param name="t" value="templates/cc-tuneup" />
 		</antcall>
 		<antcall target="restartcc" />
 	</target>	
 
-	<target name="_checkenv" depends="sagenvInit">
-		<propertyfile file="${env.properties}">
-			<entry key="empower.username" value="${env.EMPOWER_USR}" if:set="env.EMPOWER_USR" />
-			<entry key="empower.password" value="${env.EMPOWER_PSW}" if:set="env.EMPOWER_PSW"/>
-		</propertyfile>
-		<property file="${env.properties}" />
-	</target>
+	<target name="credentials" depends="sagenvInit" description="Configure credentials" >
+		<!-- env vars have presedence over env.properties -->
+		<property name="empower.username" value="${env.EMPOWER_USR}" if:set="env.EMPOWER_USR" />
+		<property name="empower.password" value="${env.EMPOWER_PSW}" if:set="env.EMPOWER_PSW"/>
 
-	<target name="_empowercreds" depends="_checkenv" unless="empower.password">
-		<echo>
-			Empower credentials are not provided in ${env.properties}
-			Please provide them now
+		<!-- load the from propertes file -->
+		<property file="${env.properties}" />
+
+		<!-- if stil don't have credentials, ask for them -->
+		<echo unless:set="empower.password">
+			Provide https://empower.softwareag.com/ Download Center credentials:
 		</echo>
 
 		<input message="Enter your https://empower.softwareag.com/ username (email address): " 
@@ -38,247 +37,33 @@
 		<input message="Enter your https://empower.softwareag.com/ password (will NOT be masked!): " 
 			addproperty="empower.password" unless:set="empower.password"/>
 
-		<echo>Storing Empower credentials in ${env.properties} for future use</echo>
-
-		<propertyfile file="${env.properties}">
+		<mkdir dir="build" />
+		<propertyfile file="build/.env.properties">
 			<entry key="empower.username" value="${empower.username}" />
 			<entry key="empower.password" value="${empower.password}" />
 		</propertyfile>
+
+		<echo>
+			Securely store Empower credentials in Command Central ...
+		</echo>
+
+		<antcall target="apply">
+			<param name="t" value="templates/cc-creds" />
+			<param name="env.properties" value="build/.env.properties" />
+		</antcall>
+		<delete file="build/.env.properties" />
+
+		<echo>
+			List of configured credentials
+		</echo>
+		<cc command="list configuration instances nodeAlias=local runtimeComponentId=OSGI-CCE-ENGINE configurationTypeId=COMMON-CREDENTIALS refresh=true properties=id" format="tsv" />
+
 	</target>
 
-	<target name="masters" depends="_empowercreds,waitcc,sagenvInit" description="Register master repositories">
+	<target name="masters" depends="waitcc,sagenvInit" description="Register master repositories">
 		<antcall target="apply">
 			<param name="t" value="templates/sag-repos" />
 		</antcall>
-	</target>
-
-	<target name="mirrors" depends="_prepare,waitcc,sagenvInit" description="Create/update mirror repositories">
-		<property file="${env.properties}" />
-		<property name="release" value="9.12" />
-		<property name="mirror.products" value="ALL" />
-		<property name="mirror.platforms" value="${platform.uppercase}" />
-
-		<mirror type="products" release="${release}" 
-			from="webMethods-${release}" filter="" 
-			artifacts="${mirror.products}" 
-			platforms="${mirror.platforms}"/>
-
-		<mirror type="fixes" release="${release}" 
-			from="Empower" 
-			filter="products-${release}" 
-			platforms="${mirror.platforms}"
-			artifacts="LATEST" />
-
-		<echo>
-			Registered product repositories
-		</echo>
-		<cc command="list repository products" format="tsv"/>
-		
-		<echo>
-			Registered fix repositories
-		</echo>
-		<cc command="list repository fixes" format="tsv"/>
-	</target>
-
-	<target name="licenses" depends="waitcc,sagenvInit" description="Import licence keys">
-		<property file="${env.properties}" />
-
-		<property name="licenses.dir" value="licenses" unless:set="licenses.zip.url"/>
-		<property name="licenses.dir" value="build/licenses" if:set="licenses.zip.url"/>
-
-		<echo if:set="licenses.zip.url">Downloading license keys .zip from: ${licenses.zip.url}</echo>
-		<mkdir dir="build/downloads" />
-		<get src="${licenses.zip.url}" dest="build/downloads/licenses.zip" usetimestamp="true" if:set="licenses.zip.url" />
-		<unzip src="build/downloads/licenses.zip" dest="${licenses.dir}" if:set="licenses.zip.url" />
-
-		<cc command="list license-tools keys includeHeaders=false" format="csv" outputproperty="aliases" />
-
-		<iterate target="_import-license-files">
-			<fileset dir="${licenses.dir}/lnxamd64" includes="*.xml" />
-			<fileset dir="${licenses.dir}/w64" includes="*.xml" />
-			<fileset dir="${licenses.dir}/any" includes="*.*" excludes="readme.txt" />
-		</iterate>
-
-		<echo>Registered license keys</echo>
-		<cc command="list license-tools keys" format="tsv"/>
-	</target>
-
-	<target name="images" depends="waitcc,sagenvInit" description="Upload product and fix images">
-		<property file="${env.properties}" />
-		<property name="images.dir" value="images" />
-
-		<cc command="list repository products includeHeaders=false" format="csv" outputproperty="productrepos" />
-		<cc command="list repository fixes includeHeaders=false" format="csv" outputproperty="fixrepos" />
-		<property name="aliases" value="${productrepos},${fixrepos}" />
-
-		<iterate target="_upload-image-files">
-			<fileset dir="${images.dir}/products" includes="*.zip" />
-			<fileset dir="${images.dir}/fixes" includes="*.zip" />
-		</iterate>
-
-		<echo>
-			Registered product repositories
-		</echo>
-		<cc command="list repository products" format="tsv"/>
-		
-		<echo>
-			Registered fix repositories
-		</echo>
-		<cc command="list repository fixes" format="tsv"/>
-	</target>	
-
-	<!-- generic helpers: move to sagrepo -->
-
-	<macrodef name="mirror" >
-		<attribute name="type" default="products"/>
-		<attribute name="release" default="9.12"/>
-		<attribute name="name" default="@{type}-@{release}"/>
-		<attribute name="from" default="webMethods-@{release}"/>
-		<attribute name="filter" default="webMethods-@{release}"/>
-		<attribute name="platforms" default="${platform.uppercase}"/>
-		<attribute name="artifacts" default="ALL"/>
-		<attribute name="wait" default="3600" />
-
-		<sequential>
-			<!-- get list of all repositories -->
-			<cc command="list repository @{type} includeHeaders=false properties=displayName" format="csv" outputproperty="names" />
-		
-			<echo>Current @{type} repository names</echo>
-			<echo>${names}</echo>
-
-			<!-- check if we already have this repository -->
-			<contains list="${names}" item="@{name}" property="exists" />
-
-			<!-- if we don't, add it-->
-			<cc unless:true="${exists}" 
-				command="add repository @{type} mirror name=@{name} sourceRepos=@{from} productRepos=@{filter} artifacts=@{artifacts} platforms=@{platforms} includeHeaders=false properties=id" format="csv" outputproperty="jobid"/>
-			
-			<!-- if we do, update it -->
-			<echo if:true="${exists}">@{name} repository already exists. Updating ...</echo>
-			<cc if:true="${exists}"     
-				command="update repository @{type} mirror @{name} sourceRepos=@{from} productRepos=@{filter} artifacts=@{artifacts} platforms=@{platforms} includeHeaders=false properties=id" format="csv" outputproperty="jobid"/>
-			
-			<waitforjob wait="@{wait}" />
-		</sequential>
-	</macrodef>
-
-	<target name="installers" depends="_prepare,sagenvInit" description="Download bootstrap installers">
-		<property name="installers.dir" value="${install.dir}/profiles/CCE/data/installers" />
-		<mkdir dir="${installers.dir}" />
-
-		<property file="${env.properties}" />
-		
-		<!-- default value: comma delimited list of all installers to download -->
-		<property name="installers" value="${installer}.${file.extension}" />
-
-		<echo>
-			Downloading requested installers: ${installers} ...
-		</echo>
-
-		<for list="${installers}" param="i" delimiter=",">
-			<sequential>
-				<antcall target="_download">
-					<param name="installer.file" value="@{i}" />
-				</antcall>
-			</sequential>
-        </for>
-
-		<echo>
-			Copying downloaded installers
-		</echo>
-
-		<copy todir="${installers.dir}">
-			<fileset dir="${installer.dir}" includes="${installers}" />
-		</copy>
-
-		<echo>
-			Registered bootstrap installers
-		</echo>
-		<cc command="list provisioning bootstrap installers" format="tsv"/>
-	</target>	
-
-	<macrodef name="waitforjob" >
-		<attribute name="jobid" default="${jobid}"/>
-		<attribute name="wait" default="120" />
-		<sequential>
-			<cc command="list jobmanager jobs @{jobid} includeHeaders=false" 
-				expectedvalues="DONE|ERROR|WARNING|TIMEOUT|CANCELED" 
-				wait="@{wait}" 
-				checkevery="20" 
-				format="tsv" />
-			<antcall target="_jobresult"/>	
-		</sequential>
-	</macrodef>
-
-	<scriptdef name="iterate" language="javascript" description="Calls target for each file in fileset">
-		<element name="fileset" type="fileset"/>
-		<attribute name="target" />
-		<![CDATA[
-            callee = project.createTask("antcall");
-            callee.setTaskName(attributes.get("target"));
-            callee.init();
-            callee.setTarget(attributes.get("target"));
-            callee.setInheritAll(true);
-            callee.setInheritRefs(false);
-            p1 = callee.createParam();
-            p1.setName("dir");
-            p2 = callee.createParam();
-            p2.setName("file");
-            p3 = callee.createParam();
-            p3.setName("filename");
-            p4 = callee.createParam();
-            p4.setName("dirname");
-          	
-          	filesets = elements.get("fileset");
-              for (i = 0; i < filesets.size(); ++i) {
-          	    fileset = filesets.get(i);
-          	    dir = fileset.getDir(project)
-          	    ds = fileset.getDirectoryScanner();
-          	    files = ds.getIncludedFiles();
-          	    for (n = 0; n < files.length; n++) {
-          	      f = files[n]
-                  p1.setValue(dir);
-                  p2.setValue(f);
-                  p3.setValue(f.substring(0, f.length() - 4)); // no .ext
-                  p4.setValue(dir.getName());
-          	      callee.execute();
-          	  }
-            }
-    ]]>
-	</scriptdef>
-
-    <scriptdef language="javascript" name="contains">
-        <attribute name="list" />
-    	<attribute name="item" />
-        <attribute name="property" />
-        project.setProperty(attributes.get("property"), attributes.get("list").contains(attributes.get("item")));
-    </scriptdef>	
-	
-	<target name="_import-license-files">
-		<property name="alias" value="${filename}-${dirname}"/>
-		<!-- chcek if we already have this license key -->
-		<contains list="${aliases}" item="${alias}" property="exists" />
-
-		<echo if:true="${exists}">${alias}: already present!</echo>
- 	    
-		<sequential unless:true="${exists}">
-            <echo>${alias}: importing from ${dir}/${file}</echo>
-            <cc command="add license-tools keys ${alias}" input="${dir}/${file}" failonerror="false" />
- 	    </sequential>
-	</target>
-
-	<target name="_upload-image-files">
-		<property name="alias" value="${filename}"/>
-		<!-- check if we already have this repo -->
-		<contains list="${aliases}" item="${alias}" property="exists" />
-		
-		<echo if:true="${exists}">${alias}: already present!</echo>
-
-		<sequential unless:true="${exists}">
-            <echo>${alias}: uploading from ${dir}/${file}</echo>
-			<cc command="add repository ${dirname} image name=${alias} includeHeaders=false properties=id" input="${dir}/${file}" format="csv" outputproperty="jobid"/>
-			<waitforjob />
- 	    </sequential>
 	</target>
 
 </project>
