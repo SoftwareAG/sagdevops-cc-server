@@ -17,7 +17,7 @@ Open [Command Central Web UI](https://0.0.0.0:8091/cce/web/?entry=stacks#jobs:) 
 
 ## Quick start Dev environment
 
-To initize couple of develoment/test nodes and oracle db run:
+To initialize couple of development nodes and Oracle XE db run:
 
 ```bash
 docker-compose run --rm initdev
