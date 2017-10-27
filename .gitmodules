@@ -1,3 +1,6 @@
 [submodule "antcc"]
 	path = antcc
 	url = https://github.com/SoftwareAG/sagdevops-antcc.git
+[submodule "library"]
+	path = library
+	url = https://github.com/SoftwareAG/sagdevops-templates.git

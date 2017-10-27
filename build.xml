@@ -2,7 +2,7 @@
 <project xmlns="antlib:org.apache.tools.ant" basedir="." default="up" xmlns:if="ant:if" xmlns:unless="ant:unless" >
 	<import file="antcc/main.xml" />
 	
-	<target name="up" depends="tuneup,credentials,masters,licenses,images,installers,mirrors" description="Setup everything" />
+	<target name="up" depends="tuneup,credentials,masters,licenses,images,layers" description="Setup everything" />
 
 	<!-- TBD: Move to antcc/sagrepo? -->
 	<target name="proxy" depends="waitcc,sagenvInit" description="Configure proxy">
@@ -21,7 +21,7 @@
 	</target>	
 
 	<!-- TBD: Move to antcc/sagrepo? -->
-	<target name="credentials" depends="sagenvInit" description="Configure credentials" >
+	<target name="credentials" depends="waitcc,sagenvInit" description="Configure credentials" >
 		<!-- env vars have presedence over env.properties -->
 		<property name="empower.username" value="${env.EMPOWER_USR}" if:set="env.EMPOWER_USR" />
 		<property name="empower.password" value="${env.EMPOWER_PSW}" if:set="env.EMPOWER_PSW"/>
@@ -76,5 +76,24 @@
 			<param name="t" value="templates/cc-mirrors" />
 		</antcall>
 	</target>
+
+	<target name="layers" depends="waitcc" description="Import and register library layers" >
+		<path id="layers.list.ref">
+    		<dirset dir="library/templates" includes="*" />
+  		</path>
+		<antcall target="templates">
+			<param name="templates" value="${toString:layers.list.ref}"/>
+		</antcall>
+		<antcall target="apply">
+			<param name="t" value="library/templates/sag-layer-defs"/>
+		</antcall>
+		<cc command="list configuration instances local OSGI-CCE-ENGINE refresh=true" format="tsv" />
+	</target>	
+
+	<target name="oracledb" depends="waitcc,sagenvInit">
+		<antcall target="apply">
+			<param name="t" value="library/templates/sag-db-oracle"/>
+		</antcall>
+	</target>	
 
 </project>
