@@ -45,10 +45,11 @@ services:
       - ./clients/docker.properties:/root/.sag/cc.properties
     environment: 
       - CC_SERVER=cc
+      - CC_ENV=docker
       - CC_PASSWORD
       - EMPOWER_USR
       - EMPOWER_PSW
-    command: sagccant -Denv=docker credentials masters layers licenses
+    command: sagccant credentials masters layers licenses
     depends_on: 
       - cc
 
@@ -60,7 +61,8 @@ services:
     environment: 
       - CC_SERVER=cc
       - CC_PASSWORD
-    command: sagccant nodes oracledb -Denv=docker
+      - CC_ENV=docker
+    command: sagccant nodes oracledb
     depends_on: 
       - cc
       - devoracle
