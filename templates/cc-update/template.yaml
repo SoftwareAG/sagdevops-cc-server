@@ -1,0 +1,22 @@
+alias: cc-update
+description: Install latest updates for CC
+version: 10.1
+
+environments:
+  default:                      
+    repo.fix: Empower
+
+layers:
+  cce:
+    fixRepo: ${repo.fix}
+    templates:
+      - updates
+
+templates:
+  updates:
+    fixes: ALL
+  
+provision:
+  default:
+    cce:  
+      - local

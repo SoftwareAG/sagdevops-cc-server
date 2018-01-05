@@ -6,6 +6,7 @@ environments:
   default:                      
     empower.username: ${}       # REQUIRED, username on https://empower.softwareag.com/
     empower.password: ${}       # REQUIRED, password
+    cc.password: manage123      # password for remote SPMs Administrator user
 
 layers:
   cce:
@@ -30,7 +31,7 @@ templates:
                     "@alias": SECURE_ADMINISTRATOR
                     AuthenticationType: BASIC
                     UserName: Administrator
-                    Password: manage123          
+                    Password: ${cc.password}          
                     Description: "Custom Administrator password"    
 provision:
   default:

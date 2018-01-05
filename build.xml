@@ -2,7 +2,7 @@
 <project xmlns="antlib:org.apache.tools.ant" basedir="." default="up" xmlns:if="ant:if" xmlns:unless="ant:unless" >
 	<import file="antcc/main.xml" />
 	
-	<target name="up" depends="tuneup,credentials,masters,licenses,images,layers" description="Setup everything" />
+	<target name="up" depends="tuneup,credentials,masters,licenses,layers,installers,mirrors" description="Setup everything" />
 
 	<!-- TBD: Move to antcc/sagrepo? -->
 	<target name="proxy" depends="waitcc,sagenvInit" description="Configure proxy">
@@ -20,11 +20,18 @@
 		<antcall target="restartcc" />
 	</target>	
 
+	<target name="updatecc" depends="waitcc,sagenvInit" description="Self update Command Central">
+		<antcall target="apply">
+			<param name="t" value="templates/cc-update" />
+		</antcall>
+	</target>
+
 	<!-- TBD: Move to antcc/sagrepo? -->
 	<target name="credentials" depends="waitcc,sagenvInit" description="Configure credentials" >
 		<!-- env vars have presedence over env.properties -->
 		<property name="empower.username" value="${env.EMPOWER_USR}" if:set="env.EMPOWER_USR" />
 		<property name="empower.password" value="${env.EMPOWER_PSW}" if:set="env.EMPOWER_PSW"/>
+		<property name="cc.password"      value="${env.CC_PASSWORD}" if:set="env.CC_PASSWORD"/>
 
 		<!-- load the from propertes file -->
 		<property file="${env.properties}" />
@@ -41,9 +48,11 @@
 			addproperty="empower.password" unless:set="empower.password"/>
 
 		<mkdir dir="build" />
+		<delete file="build/.env.properties" />
 		<propertyfile file="build/.env.properties">
 			<entry key="empower.username" value="${empower.username}" />
 			<entry key="empower.password" value="${empower.password}" />
+			<entry key="cc.password" value="${cc.password}" if:set="cc.password" />
 		</propertyfile>
 
 		<echo>
