@@ -9,33 +9,39 @@ changes:
 
 environments:
   default:
-    # timeout for CCE to SPM connection (seconds)
+    # Connect to Platform Manager timeout (seconds)
     timeout.spm.connect.seconds: 900
-    # timeout for CCE data sync from SPM (seconds) 
+    # Read from Platform Manager timeout (seconds) 
     timeout.spm.read.seconds: 900
-    # timeout http/socket read for product/fix repositories (milliseconds)
+    # Read product and fix repositories timeout (milliseconds)
     timeout.repo.read.seconds: 5
     
-    # timeout for generic jobs (seconds)
+    # Default job timeout (seconds)
     timeout.job.seconds: 4800
-    # timeout for mirror jobs (minutes)
+    # Create or refresh mirror repository timeout (minutes)
     timeout.job.mirror.minutes: 720
-    # timeout for bootstrap jobs (minutes)
+    # Bootstrap Platform Manager timeout (minutes)
     timeout.job.bootstrap.minutes: 120
-    # timeout for apply template jobs (minutes)
+    # Create bootstrap image and install Platform Manager timeout (minutes) 
+    timeout.job.bootstrap.node.minutes: 120
+    # Bootstrap one standalone installation timeout (minutes)
+    timeout.job.bootstrap.platform.manager.minutes: 120
+    # Bootstrap multiple standalone installations timeout (minutes)
+    timeout.job.environment.add.nodes.minutes: 120
+    # Apply composite templates timeout (minutes)
     timeout.job.template.minutes: 120
-    # number of concurrent jobs (nodes to process in parallel)
+    # Maximum concurrent jobs
     pool.size.jobs: 50
     
-    # timeout for node status change (seconds)
+    # Wait for bootstrapped or restarted Platform Manager to come online timeout (seconds)
     timeout.status.node.seconds: 2400
-    # timeout for runtime status change (seconds)
+    # Wait for restarted runtime instance to come online timeout (seconds)
     timeout.status.runtime.seconds: 2400
 
-    # enable/disable fix installation dependencies validation (true/false)
+    # Enable or disable fix dependency validation when installing fixes (true/false)
     fix.dependencies.validation: true
 
-    # list of SPM nodes/hosts to configure
+    # List of SPM nodes/hosts to configure
     spm.hosts: [local]
 
 layers:
@@ -60,9 +66,9 @@ templates:
                   com.softwareag.platform.management.job.timeout=${timeout.job.seconds}000
                   com.softwareag.platform.management.mirror.job.timeout=${timeout.job.mirror.minutes}
                   com.softwareag.platform.management.client.provision.bootstrap.platform.manager.timeout.minutes=${timeout.job.bootstrap.minutes}
-                  com.softwareag.platform.management.client.provision.bootstrap.node.timeout.minutes=${timeout.job.bootstrap.minutes}
-                  com.softwareag.platform.management.client.provision.bootstrap.node.job.bootstrap.platform.manager.timeout.minutes=${timeout.job.bootstrap.minutes}
-                  com.softwareag.platform.management.client.provision.environment.add.nodes.job.timeout.minutes=${timeout.job.bootstrap.minutes}
+                  com.softwareag.platform.management.client.provision.bootstrap.node.timeout.minutes=${timeout.job.bootstrap.node.minutes}
+                  com.softwareag.platform.management.client.provision.bootstrap.node.job.bootstrap.platform.manager.timeout.minutes=${timeout.job.bootstrap.platform.manager.minutes}
+                  com.softwareag.platform.management.client.provision.environment.add.nodes.job.timeout.minutes=${timeout.job.environment.add.nodes.minutes}
                   com.softwareag.platform.management.client.template.composite.apply.job.timeout.minutes=${timeout.job.template.minutes}
                   com.softwareag.platform.management.client.template.composite.node.check.online.poll.timeout.miliseconds=${timeout.status.node.seconds}000
                   com.softwareag.platform.management.client.template.composite.restart.online.status.poll.timeout.miliseconds=${timeout.status.runtime.seconds}000
