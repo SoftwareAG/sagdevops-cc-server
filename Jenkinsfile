@@ -1,103 +1,68 @@
 #!groovy​
 pipeline {
-    agent {
-        label 'master' // most of work on linux master/client
-    }
+    agent none
+
     options {
         buildDiscarder(logRotator(numToKeepStr:'10'))
         disableConcurrentBuilds()
+        skipDefaultCheckout()
     }
-    parameters { 
-        string(name: 'VM', defaultValue: 'bgcctbp05', description: 'Command Central server VM: bgcctbp05 (lnx), bgcctbp21 (win), bgninjabvt22 (sol)') 
-    }
-
     environment {
+        CC_BOOT = 'default'    // your custom boot config
+        CC_ENV = 'default'     // your custom env config
+  
         VM_SERVER  = 'daevvc02'
-        CC_ENV = 'default' // 9.12 or 10.0
-    }
+        CC_VM = 'bgninjabvt06' // your VM
+        CC_AGENT = "bgninjabvt06.eur.ad.sag" // Jenkins agent
 
+        // set EMPOWER_USR and EMPOWER_PSW env variables using Jenkins credentials
+        EMPOWER = credentials('empower')
+        // CC_CLI_HOME = '$HOME/sag/cc/CommandCentral/client'
+    }
     stages {
-        stage("Restart VM") {
-            steps {
-                vSphere buildStep: [$class: 'PowerOff', vm: params.VM, evenIfSuspended: false, shutdownGracefully: false], serverName: "${VM_SERVER}"
-                vSphere buildStep: [$class: 'PowerOn',  vm: params.VM, timeoutInSeconds: 180], serverName: "${VM_SERVER}"
-           }
-        }
         stage("Prepare") {
+            agent {
+                label 'master'
+            }            
             steps {
                 checkout scm
-                sh 'git submodule update --init' 
                 stash(name:'scripts', includes:'**')
             }
         }
-        stage("Boot Unix") {
+        stage ('Restart VM') {
             agent {
-                label params.VM + '.eur.ad.sag' // bootstrap MUST run on the target VM
-            }
-            tools {
-                ant "ant-1.9.7"
-                jdk "jdk-1.8"
-            }       
-            /*
-            when { 
-                expression { return isUnix() } 
-            }*/
-            steps {
-                unstash 'scripts'
-                timeout(time:60, unit:'MINUTES') {
-                    sh "ant boot -Daccept.license=true -Dbootstrap=${CC_ENV}" // use sh
-                }
-            }
-        }
-        /*
-        stage('Boot Windows') {
-            agent {
-                label params.VM + '.eur.ad.sag' // bootstrap MUST run on the target VM
-            }
-            tools {
-                ant "ant-1.9.7"
-                jdk "jdk-1.8"
-            }             
-            when { 
-                expression { return !isUnix() } 
+                label 'master'
             }
             steps {
-                unstash 'scripts'
-                timeout(time:60, unit:'MINUTES') {
-                    bat "ant boot -Dbootstrap=${CC_ENV}" // use bat
-                }
+                vSphere buildStep: [$class: 'PowerOff', evenIfSuspended: false, shutdownGracefully: false, vm: env.CC_VM], serverName: env.VM_SERVER
+                vSphere buildStep: [$class: 'PowerOn', timeoutInSeconds: 180, vm: env.CC_VM], serverName: env.VM_SERVER
             }
-        }*/       
-
-        stage('Up and Test') {
-            agent {
-                label params.VM + '.eur.ad.sag' // target VM
-            }
-            tools {
-                ant "ant-1.9.7"
-                jdk "jdk-1.8"
-            } 
-            environment {
-                // set EMPOWER_USR and EMPOWER_PSW env variables using Jenkins credentials
-                EMPOWER = credentials('empower')
-                CC_SERVER = params.VM
-                CC_CLI_HOME = '$HOME/sag/cc/CommandCentral/client'
-            }
+        }   
+        stage("Boot") {
             steps {
-                unstash 'scripts'
-                timeout(time:120, unit:'MINUTES') {
-                    //sh "ant client -Dbootstrap=${CC_ENV}" // boot client
-                    sh "$CC_CLI_HOME/bin/sagccant masters test installers mirrors -Denv=test-${CC_ENV}" // point to the target VM
+                node ("${env.CC_AGENT}") {
+                    unstash 'scripts'
+                    bat "ant boot -Daccept.license=true -Dbootstrap=$CC_BOOT"
                 }
             }
-            post {
-                success {
+        }   
+        stage ('Up') {
+            steps {
+                node ("${env.CC_AGENT}") {
+                    unstash 'scripts'
+                    bat "ant tuneup credentials masters licenses -Denv=$CC_ENV"
+                }
+            }
+        }   
+        stage ('Download') {
+            steps {
+                node ("${env.CC_AGENT}") {
+                    unstash 'scripts'
+                    bat "ant test -Denv=$CC_ENV"
                     junit 'build/tests/**/TEST-*.xml'
+                    bat "ant images installers mirrors -Denv=$CC_ENV"
                 }
-                unstable {
-                    junit 'build/tests/**/TEST-*.xml'
-                }
-            }  
-        }
+            }
+        }                        
     }
 }
