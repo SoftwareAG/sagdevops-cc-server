@@ -180,7 +180,7 @@ IMPORTANT: If you run this setup on a CI server you can pass credentials via env
 
 ```bash
 export EMPOWER_USR=you@company.com
-export EMPOWER_PWD=empowerpassword
+export EMPOWER_PSW=empowerpassword
 sagccant credentials
 ```
 
