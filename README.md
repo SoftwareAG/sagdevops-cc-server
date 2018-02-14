@@ -130,7 +130,7 @@ Run bootstrap process using the default properties file:
 ant boot -Dbootstrap=YOUR_BOOT_NAME
 ```
 
-NOTE: most of the properties are applicable only for a new boostrap session. If you already bootstraped
+NOTE: most of the properties are applicable only for a new bootstrap session. If you already bootstraped
 Command Central they will NOT apply for this installation.
 You can re-bootstrap Command Central by running this command:
 
@@ -307,8 +307,11 @@ IMPORTANT: To ensure your entire customized setup runs cleanly perform end-to-en
 Adjust 'up' target in [build.xml](build.xml) with the targets that are applicable to your setup and run:
 
 ```bash
-sagccant uninstall boot up test -Dboostrap=YOUR_BOOT_NAME -Denv=YOUR_ENV_NAME
+sagccant uninstall boot -Dbootstrap=YOUR_BOOT_NAME 
+sagccant up test -Denv=YOUR_ENV_NAME
 ```
+
+> NOTE: `uninstall` target is currently not supported on Windows
 
 The succesful test run will end with something like this:
 
@@ -330,7 +333,7 @@ Now you can pull and run this project on any other host to perform identical ful
 of your customized Command Central server:
 
 ```bash
-sagccant boot up -Dboostrap=YOUR_BOOT_NAME -Denv=YOUR_ENV_NAME
+sagccant boot up -Dbootstrap=YOUR_BOOT_NAME -Denv=YOUR_ENV_NAME
 ```
 
 ## Cleanup
@@ -338,8 +341,9 @@ sagccant boot up -Dboostrap=YOUR_BOOT_NAME -Denv=YOUR_ENV_NAME
 To uninstall Command Central run:
 
 ```bash
-sagccant uninstall -Dboostrap=YOUR_BOOT_NAME
+sagccant uninstall -Dbootstrap=YOUR_BOOT_NAME
 ```
+> NOTE: `uninstall` target is currently not supported on Windows
 
 _____________
 Contact us at [TECHcommunity](mailto:technologycommunity@softwareag.com?subject=Github/SoftwareAG) if you have any questions.
