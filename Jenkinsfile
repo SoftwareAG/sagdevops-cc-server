@@ -73,7 +73,7 @@ pipeline {
         // CC_INSTALLER = 'cc-def-10.2-milestone-${platform}' // version to test
         // ADMIN = credentials('cc-staging') // custom password
         CC_PASSWORD = 'manage'
-        
+        CC_BOOT = 'staging'
         CC_ENV = 'staging'     // your custom env config        
         CC_ENV_FILE = "environments/staging/env.properties"
         EMPOWER = credentials('empower')
