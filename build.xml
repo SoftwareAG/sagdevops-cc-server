@@ -2,7 +2,7 @@
 <project xmlns="antlib:org.apache.tools.ant" basedir="." default="up" xmlns:if="ant:if" xmlns:unless="ant:unless" >
 	<import file="antcc/main.xml" />
 	
-	<target name="up" depends="tuneup,credentials,masters,licenses,layers,installers,mirrors" description="Setup everything" />
+	<target name="up" depends="tuneup,credentials,masters,licenses,layers,installers" description="Setup everything" />
 
 	<!-- TBD: Move to antcc/sagrepo? -->
 	<target name="proxy" depends="waitcc,sagenvInit" description="Configure proxy">
