@@ -2,7 +2,7 @@ version: "3.2"
 
 services:
   cc:
-    image: softwareag/commandcentral:10.1.0.1-server
+    image: store/softwareag/commandcentral:10.1-server
     ports:
       - "8090:8090"
       - "8091:8091"
@@ -11,7 +11,7 @@ services:
       - CC_PASSWORD
       
   dev1:   # this is main test node
-    image: softwareag/commandcentral:10.1.0.1-node
+    image: store/softwareag/commandcentral:10.1-node
     ports: # export all known ports for easy testing, but dont statically bind them to allow CI
       - target: 5555 # IS
         #published: 5555
@@ -26,20 +26,12 @@ services:
       - CC_AUTO_REGISTER=0
 
   dev2: # this is supporting node
-    image: softwareag/commandcentral:10.1.0.1-node
+    image: store/softwareag/commandcentral:10.1-node
     environment:
       - CC_AUTO_REGISTER=0
 
-  devoracle:
-    image: daerepository03.eur.ad.sag:4443/ccdevops/oracle:11
-    ports: 
-      - target: 1521 # Oracle port
-        #published: 1521      
-    environment: 
-      - ORACLE_ALLOW_REMOTE=true
-
   init:
-    image: softwareag/commandcentral:10.1.0.1-server
+    image: store/softwareag/commandcentral:10.1-server
     volumes: 
       - ./:/src 
       - ./clients/docker.properties:/root/.sag/cc.properties
@@ -54,7 +46,31 @@ services:
       - cc
 
   initdev:
-    image: softwareag/commandcentral:10.1.0.1-server
+    image: store/softwareag/commandcentral:10.1-server
+    volumes: 
+      - ./:/src 
+      - ./clients/docker.properties:/root/.sag/cc.properties
+    environment: 
+      - CC_SERVER=cc
+      - CC_PASSWORD
+      - CC_ENV=docker
+    command: sagccant nodes
+    depends_on: 
+      - cc
+      - dev1
+      - dev2
+
+  # this is not a public image!
+  devoracle:
+    image: daerepository03.eur.ad.sag:4443/ccdevops/oracle:11
+    ports: 
+      - target: 1521 # Oracle port
+        #published: 1521      
+    environment: 
+      - ORACLE_ALLOW_REMOTE=true
+
+  initdevwithdb:
+    image: store/softwareag/commandcentral:10.1-server
     volumes: 
       - ./:/src 
       - ./clients/docker.properties:/root/.sag/cc.properties
