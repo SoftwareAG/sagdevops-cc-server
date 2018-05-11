@@ -8,10 +8,6 @@ repositories:
       location: http://sdc.softwareag.com/dataservewebM101/repository/
       credentials: EMPOWER
       description: Latest GA 
-    webMethods-10.0:           
-      location: http://sdc.softwareag.com/dataservewebM100/repository/
-      credentials: EMPOWER
-      description: Innovation release
     webMethods-9.12:           
       location: http://sdc.softwareag.com/dataservewebM912/repository/
       credentials: EMPOWER
