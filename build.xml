@@ -7,7 +7,7 @@
 	<!-- TBD: Move to antcc/sagrepo? -->
 	<target name="proxy" depends="waitcc,sagenvInit" description="Configure proxy">
 		<antcall target="apply">
-			<param name="t" value="templates/cc-proxy" />
+			<param name="t" value="library/templates/sag-spm-proxy" />
 		</antcall>
 		<antcall target="restartcc" />
 	</target>
@@ -15,14 +15,14 @@
 	<!-- TBD: Move to antcc/sagrepo? -->
 	<target name="tuneup" depends="waitcc,sagenvInit" description="Tune up Command Central">
 		<antcall target="apply">
-			<param name="t" value="templates/cc-tuneup" />
+			<param name="t" value="library/templates/sag-cc-tuneup" />
 		</antcall>
 		<antcall target="restartcc" />
 	</target>	
 
 	<target name="updatecc" depends="waitcc,sagenvInit" description="Self update Command Central">
 		<antcall target="apply">
-			<param name="t" value="templates/cc-update" />
+			<param name="t" value="library/templates/sag-update" />
 		</antcall>
 	</target>
 
@@ -60,7 +60,7 @@
 		</echo>
 
 		<antcall target="apply">
-			<param name="t" value="templates/cc-creds" />
+			<param name="t" value="library/templates/sag-cc-creds" />
 			<param name="env.properties" value="build/.env.properties" />
 		</antcall>
 		<delete file="build/.env.properties" />
@@ -82,7 +82,7 @@
 	<!-- TODO: better name? Move to antcc/sagrepo? -->
 	<target name="mirrors2" depends="waitcc,sagenvInit" description="Connect remote mirrors">
 		<antcall target="apply">
-			<param name="t" value="templates/cc-mirrors" />
+			<param name="t" value="library/templates/sag-cc-mirrors" />
 		</antcall>
 	</target>
 
@@ -94,7 +94,7 @@
 			<param name="templates" value="${toString:layers.list.ref}"/>
 		</antcall>
 		<antcall target="apply">
-			<param name="t" value="library/templates/sag-layer-defs"/>
+			<param name="t" value="library/templates/sag-cc-layer-defs"/>
 		</antcall>
 		<cc command="list configuration instances local OSGI-CCE-ENGINE refresh=true" format="tsv" />
 	</target>	
