@@ -5,7 +5,7 @@ jdk:
 #  - release=9.12
 #  - release=10.1
 script:
-  - export CC_ENV=travis-ci && export CC_BOOT=10.1
+  - export CC_ENV=travis-ci
   - ant boot -Daccept.license=true
   - ~/sag/cc/CommandCentral/client/bin/sagccant credentials masters test installers clean
   - ~/sag/cc/CommandCentral/client/bin/sagccant mirrors mirrors2
