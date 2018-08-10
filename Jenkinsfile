@@ -5,6 +5,14 @@
 
 // curl -X POST -F "jenkinsfile=<Jenkinsfile" http://ccbvtauto.eur.ad.sag:8080/pipeline-model-converter/validate
 
+def installAntcc () {
+    if (isUnix()) {
+        sh "antcc/bootstrap/install.sh"
+    } else {
+        powershell "antcc/bootstrap/install.ps1"
+    }
+}
+
 def ant (command) {
     if (isUnix()) {
         sh "ant $command"
@@ -47,6 +55,9 @@ def test(propfile) {
         builders[label] = {
             node(label) {
                 unstash 'scripts'
+
+                installAntcc()
+
                 ant '-Daccept.license=true boot'
                 ant 'up test'
                 junit 'build/tests/**/TEST-*.xml'
@@ -67,7 +78,7 @@ pipeline {
     environment {
         SAG_AQUARIUS = 'aquarius-bg.eur.ad.sag'
         CC_INSTALLER_URL = "http://aquarius-bg.eur.ad.sag/cc/installers" // internal download site
-        // CC_INSTALLER = 'cc-def-10.2-fix1-${platform}' // version to test
+        CC_VERSION= = 'cc-def-10.3-milestone'
         CC_PASSWORD = 'manage'
         CC_BOOT = 'staging'
         CC_ENV = 'staging'     // your custom env config        
