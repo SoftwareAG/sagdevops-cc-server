@@ -12,5 +12,6 @@
 		<antcall target="apply">
 			<param name="alias" value="sag-cc-repos-asset" />
 		</antcall>
+		<antcall target="mirrors">
 	</target>
 </project>
