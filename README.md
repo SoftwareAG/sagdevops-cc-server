@@ -20,11 +20,14 @@ You can also use this project to maintain your Command Central installation:
 * Check jobs status and tail the logs
 * Apply default and custom templates
 
+<!--
 ## Build and Test status of default branches
 
 | AppVeyor (Windows)       | Travis CI (Linux / macOS) |
 |--------------------------|--------------------------|
 | [![Build status](https://ci.appveyor.com/api/projects/status/s8rcroq87awof16f/branch/release/102apr2018?svg=true)](https://ci.appveyor.com/project/sergeipogrebnyak/sagdevops-cc-server/branch/release/102apr2018) | [![Build Status](https://travis-ci.org/SoftwareAG/sagdevops-cc-server.svg?branch=release%2F102apr2018)](https://travis-ci.org/SoftwareAG/sagdevops-cc-server) |
+
+-->
 
 ## Requirements
 
@@ -35,36 +38,8 @@ To get started clone or fork this project (you will need to customize it)
 and run git submodule initialization procedure to pull antcc library
 
 ```bash
-git clone --recursive https://github.com/SoftwareAG/sagdevops-cc-server
+git clone --recursive -b release/103oct2018 https://github.com/SoftwareAG/sagdevops-cc-server
 cd sagdevops-cc-server
-```
-
-## Bootstrap Command Central client
-
-TIP: If you have Java 1.8+ and Apache Ant 1.9+ you can skip this section.
-
-If you don't have Java or Ant on your system you can download and bootstrap
-just the client that comes with Java and Ant distribution
-
-For Linux:
-
-```bash
-curl -O http://empowersdc.softwareag.com/ccinstallers/cc-def-10.2-fix2-lnxamd64.sh
-chmod +x cc-def-10.2-fix2-lnxamd64.sh
-./cc-def-10.2-fix2-lnxamd64.sh -D CLI -d ~/.sag/cli
-source ~/.bashrc
-```
-
-For Windows:
-
-* Download [http://empowersdc.softwareag.com/ccinstallers/cc-def-10.2-fix2-w64.zip]
-* Unzip cc-def-10.2-fix2-w64.zip
-* Run (As Administrator) cc-def-10.2-release-w64 -D CLI -d %HOME%\.sag\cli
-
-Verify by running in a new shell window:
-
-```bash
-sagccant -version # MUST be 1.9+
 ```
 
 ## Bootstrap Command Central server using Ant wrapper
@@ -124,7 +99,7 @@ You can customize configuration for the bootstrap process.
 Copy [bootstrap/default.properties](bootstrap/default.properties) into a new YOUR_BOOT_NAME.properties file.
 Uncomment the following property to accept the license agreement:
 
-```
+```bash
 accept.license=true
 ```
 

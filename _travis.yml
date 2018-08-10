@@ -1,7 +1,4 @@
-#sudo: required
-# language: java
-# jdk:
-#   - oraclejdk8
+# NOT ACTIVE YET!
 
 git:
   depth: 100
