@@ -1,68 +1,98 @@
-#!groovy​
-pipeline {
-    agent none
+#!/usr/bin/env groovy
 
+// https://jenkins.io/doc/book/pipeline/shared-libraries/
+// TODO: move to a Jenkins CC library
+
+// curl -X POST -F "jenkinsfile=<Jenkinsfile" http://ccbvtauto.eur.ad.sag:8080/pipeline-model-converter/validate
+
+def ant (command) {
+    if (isUnix()) {
+        sh "ant $command"
+    } else {
+        bat "ant $command"
+    }
+}
+
+def restartVMs(propfile) {
+    def props = readProperties file: propfile
+    def vms = props['vm.names']?.split(',')
+    def vmserver = props['vm.server']
+    def vmwait = props['vm.wait']?.toInteger()
+
+    if (!vmserver) {
+        error message: "Required vm.server, vm.names properties are not set in ${params.CC_ENV} env.properties file"
+    }
+
+    def builders = [:]
+    for (x in vms) {
+        def vm = x
+        builders[vm] = {
+            node('master') {
+                vSphere buildStep: [$class: 'PowerOff', evenIfSuspended: false, shutdownGracefully: false, vm: vm], serverName: vmserver
+                vSphere buildStep: [$class: 'PowerOn', timeoutInSeconds: 180, vm: vm], serverName: vmserver
+                sleep vmwait
+            }
+        }                        
+    }
+    parallel builders // run in parallel
+}
+
+def test(propfile) {
+    def props = readProperties file: propfile
+    def vms = props['vm.names']?.split(',')
+    def vmdomain = props['vm.domain']
+    def builders = [:]
+    for (x in vms) {
+        def label = x + vmdomain // Need to bind the label variable before the closure - can't do 'for (label in labels)'
+        builders[label] = {
+            node(label) {
+                unstash 'scripts'
+                ant '-Daccept.license=true boot'
+                ant 'up test'
+                junit 'build/tests/**/TEST-*.xml'
+            }
+        }                        
+    }
+    parallel builders // kick off parallel provisioning    
+}
+
+pipeline {
+    agent {
+        label 'master'
+    }
     options {
         buildDiscarder(logRotator(numToKeepStr:'10'))
         disableConcurrentBuilds()
-        skipDefaultCheckout()
     }
     environment {
-        CC_BOOT = 'default'    // your custom boot config
-        CC_ENV = 'default'     // your custom env config
-  
-        VM_SERVER  = 'daevvc02'
-        CC_VM = 'bgninjabvt06' // your VM
-        CC_AGENT = "bgninjabvt06.eur.ad.sag" // Jenkins agent
-
-        // set EMPOWER_USR and EMPOWER_PSW env variables using Jenkins credentials
+        SAG_AQUARIUS = 'aquarius-bg.eur.ad.sag'
+        CC_INSTALLER_URL = "http://aquarius-bg.eur.ad.sag/cc/installers" // internal download site
+        // CC_INSTALLER = 'cc-def-10.2-fix1-${platform}' // version to test
+        CC_PASSWORD = 'manage'
+        CC_BOOT = 'staging'
+        CC_ENV = 'staging'     // your custom env config        
+        CC_ENV_FILE = "environments/staging/env.properties"
         EMPOWER = credentials('empower')
-        // CC_CLI_HOME = '$HOME/sag/cc/CommandCentral/client'
     }
     stages {
         stage("Prepare") {
-            agent {
-                label 'master'
-            }            
             steps {
-                checkout scm
-                stash(name:'scripts', includes:'**')
+                stash 'scripts'
             }
-        }
-        stage ('Restart VM') {
-            agent {
-                label 'master'
-            }
+        }        
+        stage ('Restart VMs') { 
             steps {
-                vSphere buildStep: [$class: 'PowerOff', evenIfSuspended: false, shutdownGracefully: false, vm: env.CC_VM], serverName: env.VM_SERVER
-                vSphere buildStep: [$class: 'PowerOn', timeoutInSeconds: 180, vm: env.CC_VM], serverName: env.VM_SERVER
+                script {
+                    restartVMs env.CC_ENV_FILE
+                }              
             }
-        }   
-        stage("Boot") {
+        }  
+        stage ('Platform Test') {
             steps {
-                node ("${env.CC_AGENT}") {
-                    unstash 'scripts'
-                    bat "ant boot -Daccept.license=true -Dbootstrap=$CC_BOOT"
-                }
+                script {
+                    test env.CC_ENV_FILE
+                }         
             }
-        }   
-        stage ('Up') {
-            steps {
-                node ("${env.CC_AGENT}") {
-                    unstash 'scripts'
-                    bat "ant tuneup credentials masters licenses -Denv=$CC_ENV"
-                }
-            }
-        }   
-        stage ('Download') {
-            steps {
-                node ("${env.CC_AGENT}") {
-                    unstash 'scripts'
-                    bat "ant test -Denv=$CC_ENV"
-                    junit 'build/tests/**/TEST-*.xml'
-                    bat "ant images installers mirrors -Denv=$CC_ENV"
-                }
-            }
-        }                        
+        }     
     }
 }

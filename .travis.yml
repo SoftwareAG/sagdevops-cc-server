@@ -1,12 +1,37 @@
-language: java
-jdk:
-  - oraclejdk8
-#env:
-#  - release=9.12
-#  - release=10.1
+#sudo: required
+# language: java
+# jdk:
+#   - oraclejdk8
+
+git:
+  depth: 100
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+    - os: osx
+  fast_finish: true
+
+env:
+  global:
+    - CC_ENV=travis-ci
+
+  matrix:
+    - CC_BOOT=default
+
+before_install:
+  - antcc/bootstrap/install.sh
+  - export CC_CLI_HOME="$HOME/.sag/tools/CommandCentral/client"
+  - export ANT_HOME="$HOME/.sag/tools/common/lib/ant"
+  - export ANTCC_HOME=`pwd`/antcc
+  - export PATH=$PATH:$ANTCC_HOME/bin:$ANT_HOME/bin
+
 script:
-  - export CC_ENV=travis-ci && export CC_BOOT=default
-  - ant boot -Daccept.license=true
-  - ~/sag/cc/CommandCentral/client/bin/sagccant credentials masters test installers clean
-  - ~/sag/cc/CommandCentral/client/bin/sagccant mirrors mirrors2
-  - ~/sag/cc/CommandCentral/client/bin/sagccant mirrors mirrors2 -Drelease=9.12
+  - antcc boot -Daccept.license=true
+  - antcc up
+  - antcc mirrors mirrors2
+
+cache:
+  directories:
+    - $HOME/Downloads

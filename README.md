@@ -1,8 +1,6 @@
-[![Build Status](https://travis-ci.org/SoftwareAG/sagdevops-cc-server.svg?branch=master)](https://travis-ci.org/SoftwareAG/sagdevops-cc-server/builds)
+# Command Central server setup
 
-# Command Central 10.1 server setup
-
-This project automates Command Central 10.1 setup:
+This project automates Command Central setup:
 
 * Downloads latest fix level bootstrap installer for your platform
 * Runs bootstrap installer
@@ -11,14 +9,22 @@ This project automates Command Central 10.1 setup:
 * Uploads license keys
 * Uploads product and fix images
 * Creates mirror repositories
+* Imports default templates library
 
 You can also use this project to maintain your Command Central installation:
 
 * Pull the latest fixes and products into mirror repositories
 * Update Command Central to the latest patch level
-* Upgrade Command Central to a new release (from 9.x to 10.1)
+* Upgrade Command Central to a new release (from 9.x)
 * Start/stop/restart Command Central
 * Check jobs status and tail the logs
+* Apply default and custom templates
+
+## Build and Test status of default branches
+
+| AppVeyor (Windows)       | Travis CI (Linux / macOS) |
+|--------------------------|--------------------------|
+| [![Build status](https://ci.appveyor.com/api/projects/status/s8rcroq87awof16f/branch/release/102apr2018?svg=true)](https://ci.appveyor.com/project/sergeipogrebnyak/sagdevops-cc-server/branch/release/102apr2018) | [![Build Status](https://travis-ci.org/SoftwareAG/sagdevops-cc-server.svg?branch=release%2F102apr2018)](https://travis-ci.org/SoftwareAG/sagdevops-cc-server) |
 
 ## Requirements
 
@@ -43,17 +49,17 @@ just the client that comes with Java and Ant distribution
 For Linux:
 
 ```bash
-curl -O http://empowersdc.softwareag.com/ccinstallers/cc-def-10.1-fix1-lnxamd64.sh
-chmod +x cc-def-10.1-fix1-lnxamd64.sh
-./cc-def-10.1-fix1-lnxamd64.sh -D CLI -d ~/.sag/cli
+curl -O http://empowersdc.softwareag.com/ccinstallers/cc-def-10.2-fix2-lnxamd64.sh
+chmod +x cc-def-10.2-fix2-lnxamd64.sh
+./cc-def-10.2-fix2-lnxamd64.sh -D CLI -d ~/.sag/cli
 source ~/.bashrc
 ```
 
 For Windows:
 
-* Download [http://empowersdc.softwareag.com/ccinstallers/cc-def-10.1-fix1-w64.zip]
-* Unzip cc-def-10.1-fix1-w64.zip
-* Run (As Administrator) cc-def-10.1-release-w64 -D CLI -d %HOME%\.sag\cli
+* Download [http://empowersdc.softwareag.com/ccinstallers/cc-def-10.2-fix2-w64.zip]
+* Unzip cc-def-10.2-fix2-w64.zip
+* Run (As Administrator) cc-def-10.2-release-w64 -D CLI -d %HOME%\.sag\cli
 
 Verify by running in a new shell window:
 
@@ -75,7 +81,7 @@ java -version # MUST be 1.8+
 ant -version  # MUST be 1.9+
 ```
 
-Bootstrap the latest version of Command Central 9.12:
+Bootstrap the latest version of Command Central:
 
 ```bash
 ant boot -Daccept.license=true
@@ -130,7 +136,7 @@ Run bootstrap process using the default properties file:
 ant boot -Dbootstrap=YOUR_BOOT_NAME
 ```
 
-NOTE: most of the properties are applicable only for a new boostrap session. If you already bootstraped
+NOTE: most of the properties are applicable only for a new bootstrap session. If you already bootstraped
 Command Central they will NOT apply for this installation.
 You can re-bootstrap Command Central by running this command:
 
@@ -180,7 +186,7 @@ IMPORTANT: If you run this setup on a CI server you can pass credentials via env
 
 ```bash
 export EMPOWER_USR=you@company.com
-export EMPOWER_PWD=empowerpassword
+export EMPOWER_PSW=empowerpassword
 sagccant credentials
 ```
 
@@ -212,7 +218,7 @@ environments/YOUR_ENV_NAME/env.properties by setting this property:
 licenses.zip.url=http://url/to/licenses.zip
 ```
 
-IMPORTANT: the structure of the licenses.zip is not important. Command Central 10.1 will introspect
+IMPORTANT: the structure of the licenses.zip is not important. Command Central will introspect
 the archive and import found licences with auto generated aliases.
 
 Run this command to import license files:
@@ -307,8 +313,11 @@ IMPORTANT: To ensure your entire customized setup runs cleanly perform end-to-en
 Adjust 'up' target in [build.xml](build.xml) with the targets that are applicable to your setup and run:
 
 ```bash
-sagccant uninstall boot up test -Dboostrap=YOUR_BOOT_NAME -Denv=YOUR_ENV_NAME
+sagccant uninstall boot -Dbootstrap=YOUR_BOOT_NAME
+sagccant up test -Denv=YOUR_ENV_NAME
 ```
+
+> NOTE: `uninstall` target is currently not supported on Windows
 
 The succesful test run will end with something like this:
 
@@ -330,7 +339,7 @@ Now you can pull and run this project on any other host to perform identical ful
 of your customized Command Central server:
 
 ```bash
-sagccant boot up -Dboostrap=YOUR_BOOT_NAME -Denv=YOUR_ENV_NAME
+sagccant boot up -Dbootstrap=YOUR_BOOT_NAME -Denv=YOUR_ENV_NAME
 ```
 
 ## Cleanup
@@ -338,8 +347,10 @@ sagccant boot up -Dboostrap=YOUR_BOOT_NAME -Denv=YOUR_ENV_NAME
 To uninstall Command Central run:
 
 ```bash
-sagccant uninstall -Dboostrap=YOUR_BOOT_NAME
+sagccant uninstall -Dbootstrap=YOUR_BOOT_NAME
 ```
+
+> NOTE: `uninstall` target is currently not supported on Windows
 
 _____________
 Contact us at [TECHcommunity](mailto:technologycommunity@softwareag.com?subject=Github/SoftwareAG) if you have any questions.
