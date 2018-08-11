@@ -71,10 +71,6 @@ pipeline {
     agent {
         label 'master'
     }
-    options {
-        buildDiscarder(logRotator(numToKeepStr:'10'))
-        disableConcurrentBuilds()
-    }
     environment {
         SAG_AQUARIUS = 'aquarius-bg.eur.ad.sag'
         CC_INSTALLER_URL = "http://aquarius-bg.eur.ad.sag/cc/installers" // internal download site

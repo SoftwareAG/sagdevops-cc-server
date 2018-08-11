@@ -15,7 +15,7 @@ the AQU server of your choice:
 
 ```powershell
 set CC_INSTALLER_URL=http://aquarius-dae.eur.ad.sag/PDShare/cc
-set CC_VERSION=cc-def-10.3-milestone
+set CC_VERSION=10.3-milestone
 
 antcc/bootstrap/install.ps1
 ```
@@ -58,7 +58,7 @@ the AQU server of your choice:
 
 ```bash
 export CC_INSTALLER_URL=http://aquarius-dae.eur.ad.sag/PDShare/cc
-export CC_VERSION=cc-def-10.3-milestone
+export CC_VERSION=10.3-milestone
 
 antcc/bootstrap/install.sh
 ```
@@ -89,7 +89,7 @@ and perform default server configuration:
 export EMPOWER_USR=you@softwareag.com
 export EMPOWER_PSW=*****
 
-export SAG_AQUARIUS=aquarius-bg.eur.ad.sag
+export SAG_AQUARIUS=aquarius-dae.eur.ad.sag
 export CC_ENV=staging
 
 antcc up
