@@ -7,7 +7,7 @@ clone_script:
 
     cd sagdevops-cc-server
 install:
-- ps: bootstrap/install.ps1
+- ps: antcc/bootstrap/install.ps1
 # - cmd: choco install ant
 cache: C:\Users\appveyor\Downloads
 build_script:
