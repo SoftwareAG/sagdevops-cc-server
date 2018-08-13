@@ -7,15 +7,9 @@
 
 def installAntcc () {
     if (isUnix()) {
-        sh """
-        antcc/bootstrap/install.sh
-        . ~/.profile
-        antcc help
-        """
+        sh "curl https://raw.githubusercontent.com/SoftwareAG/sagdevops-antcc/release/103oct2018/bootstrap/install.sh | sh"
     } else {
-        powershell """
-        .\\antcc\\bootstrap\\install.ps1
-        """
+    	powershell '-NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12;iex ((New-Object System.Net.WebClient).DownloadString(\'https://github.com/SoftwareAG/sagdevops-antcc/raw/release/103oct2018/bootstrap/install.ps1\'))"'
     }
 }
 
@@ -24,6 +18,18 @@ def ant (command) {
         sh "ant $command"
     } else {
         bat "ant $command"
+    }
+}
+
+def antcc (command) {
+    if (isUnix()) {
+        sh ". $HOME/.profile && antcc $command"
+    } else {
+        // set PATH is necessary for Jenkins cygwin slaves!
+        bat """
+        set PATH=%PATH%;%USERPROFILE%\\.sag\\tools\\CommandCentral\\client\\bin;%USERPROFILE%\\.sag\\tools\\sagdevops-antcc\\bin;%USERPROFILE%\\.sag\\tools\\common\\lib\\ant\\bin
+        antcc $command
+        """
     }
 }
 
@@ -64,8 +70,8 @@ def test(propfile) {
 
                 installAntcc()
 
-                ant '-Daccept.license=true boot'
-                ant 'up staging test'
+                antcc '-Daccept.license=true boot'
+                antcc 'up staging test'
                 junit 'build/tests/**/TEST-*.xml'
             }
         }                        

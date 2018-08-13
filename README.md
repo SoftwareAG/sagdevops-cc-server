@@ -20,14 +20,11 @@ You can also use this project to maintain your Command Central installation:
 * Check jobs status and tail the logs
 * Apply default and custom templates
 
-<!--
 ## Build and Test status of default branches
 
 | AppVeyor (Windows)       | Travis CI (Linux / macOS) |
 |--------------------------|--------------------------|
 | [![Build status](https://ci.appveyor.com/api/projects/status/s8rcroq87awof16f/branch/release/103oct2018?svg=true)](https://ci.appveyor.com/project/sergeipogrebnyak/sagdevops-cc-server/branch/release/103oct2018) | [![Build Status](https://travis-ci.org/SoftwareAG/sagdevops-cc-server.svg?branch=release%2F103oct2018)](https://travis-ci.org/SoftwareAG/sagdevops-cc-server) |
-
--->
 
 ## Requirements
 
@@ -323,7 +320,9 @@ See examples of CI configuration files:
 ## Creating staging environments on Software AG network
 
 You can setup pre-released software staging environments
-if you have access to Software AG network, for example:
+if you have access to Software AG network.
+
+On Linux and Mac OS:
 
 ```bash
 export CC_BOOT=staging
@@ -338,7 +337,27 @@ export CC_INSTALLER_URL=http://aquarius-dae.eur.ad.sag/PDShare/cc
 
 # for clean boxes, bootstrap java+ant+antcc
 # antcc/bootstrap/install.sh
-# . ~/.bash_profile
+# . ~/.bash_profile || . ~/.profile
+
+ant boot
+ant up staging test
+```
+
+On Windows:
+
+```powershell
+set CC_BOOT=staging
+set CC_ENV=staging
+set CC_VERSION=10.3-milestone
+
+set EMPOWER_USR=you@softwareag.com
+set EMPOWER_PSW=*****
+
+set SAG_AQUARIUS=aquarius-dae.eur.ad.sag
+set CC_INSTALLER_URL=http://aquarius-dae.eur.ad.sag/PDShare/cc
+
+# for clean boxes, bootstrap java+ant+antcc
+# .\antcc\bootstrap\install.ps1
 
 ant boot
 ant up staging test
