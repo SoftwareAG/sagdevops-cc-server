@@ -9,7 +9,7 @@ def installAntcc () {
     if (isUnix()) {
         sh "curl https://raw.githubusercontent.com/SoftwareAG/sagdevops-antcc/release/103oct2018/bootstrap/install.sh | sh"
     } else {
-    	powershell '-NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12;iex ((New-Object System.Net.WebClient).DownloadString(\'https://github.com/SoftwareAG/sagdevops-antcc/raw/release/103oct2018/bootstrap/install.ps1\'))"'
+    	bat 'powershell.exe -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12;iex ((New-Object System.Net.WebClient).DownloadString(\'https://github.com/SoftwareAG/sagdevops-antcc/raw/release/103oct2018/bootstrap/install.ps1\'))"'
     }
 }
 
