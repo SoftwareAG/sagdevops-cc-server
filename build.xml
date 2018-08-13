@@ -1,8 +1,9 @@
 <?xml version="1.0"?>
 <project xmlns="antlib:org.apache.tools.ant" basedir="." default="up">
 	<import file="antcc/main.xml" />
-	<target name="up" depends="waitcc,library,layers,tuneup,credentials,masters,licenses" description="Setup everything" >
-		<!-- remove when 10.3 is GA -->
+	<target name="up" depends="waitcc,library,layers,tuneup,credentials,masters,licenses" description="Default setup" />
+
+	<target name="staging" depends="waitcc" description="Staging setup" >
 		<antcall target="apply">
 			<param name="alias" value="sag-cc-creds-dev" />
 		</antcall>

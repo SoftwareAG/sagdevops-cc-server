@@ -318,12 +318,12 @@ See examples of CI configuration files:
 
 * [Jenkins](Jenkinsfile)
 * [Travis CI](.travis.yml)
-* [Appveyor CI](appveryor.yml)
+* [Appveyor CI](appveyor.yml)
 
 ## Creating staging environments on Software AG network
 
 You can setup pre-released software staging environments
-if you have access to Software AG network:
+if you have access to Software AG network, for example:
 
 ```bash
 export CC_BOOT=staging
@@ -333,15 +333,15 @@ export CC_VERSION=10.3-milestone
 export EMPOWER_USR=you@softwareag.com
 export EMPOWER_PSW=*****
 
-export SAG_AQUARIUS=aquarius-XXX.eur.ad.sag
-export CC_INSTALLER_URL=http://aquarius-dae.XXX.ad.sag/PDShare/cc
+export SAG_AQUARIUS=aquarius-dae.eur.ad.sag
+export CC_INSTALLER_URL=http://aquarius-dae.eur.ad.sag/PDShare/cc
 
 # for clean boxes, bootstrap java+ant+antcc
 # antcc/bootstrap/install.sh
 # . ~/.bash_profile
 
 ant boot
-ant up test
+ant up staging test
 ```
 
 ## Cleanup

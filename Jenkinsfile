@@ -7,9 +7,15 @@
 
 def installAntcc () {
     if (isUnix()) {
-        sh "antcc/bootstrap/install.sh"
+        sh """
+        antcc/bootstrap/install.sh
+        . ~/.bash_profile
+        antcc help
+        """
     } else {
-        powershell "antcc/bootstrap/install.ps1"
+        powershell """
+        antcc/bootstrap/install.ps1
+        """
     }
 }
 
@@ -59,7 +65,7 @@ def test(propfile) {
                 installAntcc()
 
                 ant '-Daccept.license=true boot'
-                ant 'up test'
+                ant 'up staging test'
                 junit 'build/tests/**/TEST-*.xml'
             }
         }                        
