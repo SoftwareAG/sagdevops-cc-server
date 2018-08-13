@@ -9,12 +9,12 @@ def installAntcc () {
     if (isUnix()) {
         sh """
         antcc/bootstrap/install.sh
-        . ~/.bash_profile
+        . ~/.profile
         antcc help
         """
     } else {
         powershell """
-        antcc/bootstrap/install.ps1
+        .\\antcc\\bootstrap\\install.ps1
         """
     }
 }
