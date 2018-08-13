@@ -325,9 +325,9 @@ if you have access to Software AG network.
 On Linux and Mac OS:
 
 ```bash
-export CC_BOOT=staging
-export CC_ENV=staging
-export CC_VERSION=10.3-milestone
+# export CC_BOOT=staging
+# export CC_ENV=staging
+# export CC_VERSION=10.3-milestone
 
 export EMPOWER_USR=you@softwareag.com
 export EMPOWER_PSW=*****
@@ -346,9 +346,9 @@ ant up staging test
 On Windows:
 
 ```powershell
-set CC_BOOT=staging
-set CC_ENV=staging
-set CC_VERSION=10.3-milestone
+# set CC_BOOT=staging
+# set CC_ENV=staging
+# set CC_VERSION=10.3-milestone
 
 set EMPOWER_USR=you@softwareag.com
 set EMPOWER_PSW=*****
