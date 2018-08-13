@@ -1,18 +1,20 @@
 version: 1.0.{build}
-image: Visual Studio 2017
+environment:
+  CC_ENV: appveyor
 clone_script:
 - cmd: >-
     git clone -b release/103oct2018 --recursive https://github.com/SoftwareAG/sagdevops-cc-server.git
 
     cd sagdevops-cc-server
 install:
-- cmd: choco install ant
+- ps: bootstrap/install.ps1
+# - cmd: choco install ant
 cache: C:\Users\appveyor\Downloads
 build_script:
 - cmd: >-
     ant boot -Daccept.license=true
 
-    ant up mirrors -Denv=appveyor
+    ant up
 test_script:
 - cmd: ant test
 deploy: off

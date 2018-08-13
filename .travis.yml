@@ -11,10 +11,9 @@ matrix:
 env:
   global:
     - CC_ENV=travis-ci
-    - CC_VERSION=10.2-fix2
 
-  matrix:
-    - CC_BOOT=default
+  # matrix:
+  #   - CC_BOOT=default
 
 before_install:
   - antcc/bootstrap/install.sh
@@ -22,7 +21,7 @@ before_install:
 
 script:
   - antcc boot -Daccept.license=true
-  - antcc up
+  - antcc up test
 
 cache:
   directories:
