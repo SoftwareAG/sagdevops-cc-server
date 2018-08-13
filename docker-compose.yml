@@ -18,6 +18,6 @@ services:
       - CC_PASSWORD
       - EMPOWER_USR
       - EMPOWER_PSW
-    command: ant up clean
+    command: ant up test clean
     depends_on:
       - cc

@@ -6,7 +6,7 @@ This project automates Command Central setup:
 * Runs bootstrap installer
 * Configures HTTP/S proxy
 * Registers master repositories
-* Uploads license keys
+* Registers license keys
 * Uploads product and fix images
 * Creates mirror repositories
 * Imports default templates library
@@ -25,7 +25,7 @@ You can also use this project to maintain your Command Central installation:
 
 | AppVeyor (Windows)       | Travis CI (Linux / macOS) |
 |--------------------------|--------------------------|
-| [![Build status](https://ci.appveyor.com/api/projects/status/s8rcroq87awof16f/branch/release/102apr2018?svg=true)](https://ci.appveyor.com/project/sergeipogrebnyak/sagdevops-cc-server/branch/release/102apr2018) | [![Build Status](https://travis-ci.org/SoftwareAG/sagdevops-cc-server.svg?branch=release%2F102apr2018)](https://travis-ci.org/SoftwareAG/sagdevops-cc-server) |
+| [![Build status](https://ci.appveyor.com/api/projects/status/s8rcroq87awof16f/branch/release/103oct2018?svg=true)](https://ci.appveyor.com/project/sergeipogrebnyak/sagdevops-cc-server/branch/release/103oct2018) | [![Build Status](https://travis-ci.org/SoftwareAG/sagdevops-cc-server.svg?branch=release%2F103oct2018)](https://travis-ci.org/SoftwareAG/sagdevops-cc-server) |
 
 -->
 
@@ -33,66 +33,52 @@ You can also use this project to maintain your Command Central installation:
 
 * Git client
 * Internet access
-
-To get started clone or fork this project (you will need to customize it)
-and run git submodule initialization procedure to pull antcc library
-
-```bash
-git clone --recursive -b release/103oct2018 https://github.com/SoftwareAG/sagdevops-cc-server
-cd sagdevops-cc-server
-```
-
-## Bootstrap Command Central server using Ant wrapper
-
-To use bootstrap Ant wrapper script you need:
-
 * Java 1.8
 * [Apache Ant 1.9+](https://ant.apache.org/)
 
-Verify by running:
+Verify Java and Ant installation by running:
 
 ```bash
 java -version # MUST be 1.8+
 ant -version  # MUST be 1.9+
 ```
 
-Bootstrap the latest version of Command Central:
+## Quick Start
+
+> IMPORTANT: make sure you clone the repository with submodules by using `--recursive` switch:
+
+```bash
+git clone --recursive -b release/103oct2018 https://github.com/SoftwareAG/sagdevops-cc-server
+cd sagdevops-cc-server
+```
+
+Perform default setup:
+
+> IMPORTANT: by setting ```accept.license=true``` property
+you are accepting [End User License Agreement](http://documentation.softwareag.com/legal/general_license.txt)
 
 ```bash
 ant boot -Daccept.license=true
+ant up test
 ```
 
-IMPORTANT: By setting ```accept.license=true``` property
-you are accepting [End User License Agreement](http://documentation.softwareag.com/legal/general_license.txt)
+When the process completes successfully open
+[Command Central Web UI](https://localhost:8091/cce/web/) and login as Administrator/manage.
 
-The command will download the bootstrap installer for your operating system and run it for you.
-This may take up to 30 minutes.
-Then the installer is executed and the output would look like this:
+For a customization process follow the steps below.
+
+## How to customize setup process
+
+### Fork the project
+
+Fork the project and clone it locally:
 
 ```bash
-[exec] ####
-[exec] #### You can logon to Command Central Web UI as Administrator/manage
-[exec] ####
-[exec] ####     https://localhost:8091/cce/web
-[exec] ####
-[exec] #### You can also explore Command Central CLI commands by running from a NEW shell:
-[exec] ####
-[exec] ####     sagcc --help
-[exec] ####
+git clone --recursive -b release/103oct2018 https://github.com/YOURCCOUNT/sagdevops-cc-server
+cd sagdevops-cc-server
 ```
 
-Open [Command Central Web UI](https://localhost:8091/cce/web/) using the URL printed above and login using
-the specified credentials.
-
-Verify client connectivity to the Command Central server:
-
-```bash
-sagccant waitcc
-```
-
-The bootstrap process is complete.
-
-## Customizing bootstrap process
+### Customizing version, installation directory, ports and Administrator password
 
 You can customize configuration for the bootstrap process.
 
@@ -105,25 +91,22 @@ accept.license=true
 
 Review and modify any other properties as needed.
 
-Run bootstrap process using the default properties file:
+Run bootstrap process using the customized properties file:
 
 ```bash
 ant boot -Dbootstrap=YOUR_BOOT_NAME
 ```
 
-NOTE: most of the properties are applicable only for a new bootstrap session. If you already bootstraped
-Command Central they will NOT apply for this installation.
-You can re-bootstrap Command Central by running this command:
-
-```bash
-ant uninstall boot -Dbootstrap=YOUR_BOOT_NAME
-```
-
 The downloaded bootstrap installer file will be reused (not downloaded again).
 
-## Customizing Command Central configuration
+> NOTE: most of the properties are applicable only for a new bootstrap session. If you previously bootstraped
+Command Central they will NOT apply until you uninstall first
 
-### Configure proxy connection
+```bash
+ant uninstall boot
+```
+
+### Configuring Proxy
 
 If you have direct connection to the Internet you can skip this step.
 
@@ -139,14 +122,21 @@ proxy.http.nonproxyhosts=localhost|.my.domain
 Then run:
 
 ```bash
-sagccant proxy -Denv=YOUR_ENV_NAME
+ant proxy -Denv=YOUR_ENV_NAME
 ```
 
-### Register master repositories for products and fixes
+or:
+
+```bash
+export CC_ENV=YOUR_ENV_NAME
+ant proxy
+```
+
+### Registering master repositories for products and fixes
 
 If this Command Central does not have access to the Internet you can skip this step.
 
-IMPORTANT: Your _gateway_ or _development_ Command Central should have access to the Internet.
+> IMPORTANT: Your _gateway_ or _development_ Command Central should have access to the Internet.
 
 To register master repositories Command Central needs your [Empower](https://empower.softwareag.com/) credentials
 with permissions to download products and fixes.
@@ -154,32 +144,22 @@ with permissions to download products and fixes.
 Run this command to enter the credentials and store them in Command Central:
 
 ```bash
-sagccant credentials
+ant credentials
 ```
-
-IMPORTANT: If you run this setup on a CI server you can pass credentials via environment variables:
-
-```bash
-export EMPOWER_USR=you@company.com
-export EMPOWER_PSW=empowerpassword
-sagccant credentials
-```
-
-See [Jenkinsfile](Jenkinsfile) for example.
 
 Register all Software AG master repositories in Command Central:
 
 ```bash
-sagccant masters
+ant masters
 ```
 
 Verify successful master repositories setup:
 
 ```bash
-sagccant test
+ant test
 ```
 
-### Import license keys
+### Importing license keys
 
 If you can skip this step if you plan on adding your license keys for each individual project,
 however it is recommended to add all your license keys now.
@@ -193,18 +173,18 @@ environments/YOUR_ENV_NAME/env.properties by setting this property:
 licenses.zip.url=http://url/to/licenses.zip
 ```
 
-IMPORTANT: the structure of the licenses.zip is not important. Command Central will introspect
+> IMPORTANT: the structure of the licenses.zip is not important. Command Central will introspect
 the archive and import found licences with auto generated aliases.
 
 Run this command to import license files:
 
 ```bash
-sagccant licenses -Denv=YOUR_ENV_NAME
+ant licenses -Denv=YOUR_ENV_NAME
 ```
 
 You can run this command again any time to add upload new license keys.
 
-### Add product and fix images
+### Adding product and fix images
 
 You can skip this step if you're planning to use only master and mirror repositories.
 
@@ -224,7 +204,7 @@ by setting this property:
 images.dir=/path/to/images/
 ```
 
-IMPORTANT: the structure of the images.dir folder must be the following:
+> IMPORTANT: the structure of the images.dir folder must be the following:
 
 ```
 products\
@@ -238,16 +218,16 @@ fixes\
 Run this command to upload image files:
 
 ```bash
-sagccant images -Denv=YOUR_ENV_NAME
+ant images -Denv=YOUR_ENV_NAME
 ```
 
 You can run this command again any time to add upload new images.
 
-### Create mirror repositories
+### Creating mirror repositories
 
 You should create mirror repositories to improve provisioning performance.
 
-NOTE: this process may take a long time and requires up to 10GB of space on average per release
+> NOTE: this process may take a long time and requires up to 10GB of space on average per release
 if you mirror all products.
 
 You can customize which release and which products/fixes to mirror using
@@ -264,37 +244,40 @@ mirror.products=productId1,productId2,...
 # which platforms
 mirror.platforms=W64,LNXAMD64,OSX
 # hosting spm URL
-#mirror.spm=http://cc:8092
+mirror.spm=http://CCHOST:8092
 ```
 
-TIP: To find out product ids, open Command Central Web UI, webMethods-${release} repository content view
+> TIP: To find out product ids, open Command Central Web UI, webMethods-${release} repository content view
 and tick _Show ID Column_ checkbox in the gear menu.
 
 To start mirrors create or update process run:
 
 ```bash
-sagccant mirrors -Denv=YOUR_ENV_NAME
+ant mirrors -Denv=YOUR_ENV_NAME
 ```
 
-NOTE: fix mirror will download fixes only for the products in your product mirror
+> NOTE: fix mirror will download fixes only for the products in your product mirror
 repository.
 
 You can run this command again any time to pull the latest products/fixes from the upstream repos.
 
 ### Commit your changes to version control system
 
-IMPORTANT: To ensure your entire customized setup runs cleanly perform end-to-end run:
+> IMPORTANT: To ensure your entire customized setup runs cleanly perform end-to-end run:
 
 Adjust 'up' target in [build.xml](build.xml) with the targets that are applicable to your setup and run:
 
 ```bash
-sagccant uninstall boot -Dbootstrap=YOUR_BOOT_NAME
-sagccant up test -Denv=YOUR_ENV_NAME
+export CC_BOOT=YOUR_BOOT_NAME
+export CC_ENV=YOUR_ENV_NAME
+
+ant uninstall boot
+ant up test
 ```
 
-> NOTE: `uninstall` target is currently not supported on Windows
+> NOTE: `uninstall` target is currently NOT supported on Windows
 
-The succesful test run will end with something like this:
+The successful test run will end with something like this:
 
 ```bash
 [au:antunit] Environment configuration: environments/test/env.properties
@@ -308,13 +291,57 @@ BUILD SUCCESSFUL
 Total time: 41 minutes 27 seconds
 ```
 
-Commit your changes to your target version control system, e.g. forked project on github or internal git repo.
+Commit your changes to your target version control system, e.g. forked project on GitHub or internal git repo.
 
-Now you can pull and run this project on any other host to perform identical fully automated setup
+```bash
+git commit -am 'customizations'
+git push
+```
+
+## Setting up CI process
+
+Clone default or forked project from GitHub and perform identical fully automated setup
 of your customized Command Central server:
 
 ```bash
-sagccant boot up -Dbootstrap=YOUR_BOOT_NAME -Denv=YOUR_ENV_NAME
+export CC_BOOT=YOUR_BOOT_NAME
+export CC_ENV=YOUR_ENV_NAME
+
+export EMPOWER_USR=you@company.com
+export EMPOWER_PSW=*****
+
+ant boot
+ant up test
+```
+
+See examples of CI configuration files:
+
+* [Jenkins](Jenkinsfile)
+* [Travis CI](.travis.yml)
+* [Appveyor CI](appveryor.yml)
+
+## Creating staging environments on Software AG network
+
+You can setup pre-released software staging environments
+if you have access to Software AG network:
+
+```bash
+export CC_BOOT=staging
+export CC_ENV=staging
+export CC_VERSION=10.3-milestone
+
+export EMPOWER_USR=you@softwareag.com
+export EMPOWER_PSW=*****
+
+export SAG_AQUARIUS=aquarius-XXX.eur.ad.sag
+export CC_INSTALLER_URL=http://aquarius-dae.XXX.ad.sag/PDShare/cc
+
+# for clean boxes, bootstrap java+ant+antcc
+# antcc/bootstrap/install.sh
+# . ~/.bash_profile
+
+ant boot
+ant up test
 ```
 
 ## Cleanup
@@ -322,10 +349,10 @@ sagccant boot up -Dbootstrap=YOUR_BOOT_NAME -Denv=YOUR_ENV_NAME
 To uninstall Command Central run:
 
 ```bash
-sagccant uninstall -Dbootstrap=YOUR_BOOT_NAME
+ant uninstall -Dbootstrap=YOUR_BOOT_NAME
 ```
 
-> NOTE: `uninstall` target is currently not supported on Windows
+> NOTE: `uninstall` target is currently NOT supported on Windows
 
 _____________
 Contact us at [TECHcommunity](mailto:technologycommunity@softwareag.com?subject=Github/SoftwareAG) if you have any questions.

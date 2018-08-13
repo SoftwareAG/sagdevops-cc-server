@@ -27,7 +27,6 @@ before_install:
 script:
   - antcc boot -Daccept.license=true
   - antcc up
-  - antcc mirrors mirrors2
 
 cache:
   directories:
