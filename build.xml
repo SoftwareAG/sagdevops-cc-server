@@ -14,5 +14,6 @@
 			<param name="alias" value="sag-cc-repos-asset" />
 		</antcall>
 		<antcall target="mirrors" />
+		<antcall target="installers" />
 	</target>
 </project>
