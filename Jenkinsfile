@@ -86,7 +86,7 @@ pipeline {
     environment {
         SAG_AQUARIUS = 'aquarius-bg.eur.ad.sag'
         CC_INSTALLER_URL = "http://aquarius-bg.eur.ad.sag/cc/installers" // internal download site
-        CC_VERSION = '10.3-release'
+        CC_VERSION = '10.3-fix1'
         ANTCC_VERSION = '10.3-stable'
         ANTCC_DISTRO = 'antcc-nojava'
         CC_PASSWORD = 'manage'

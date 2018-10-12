@@ -327,7 +327,7 @@ On Linux and Mac OS:
 ```bash
 # export CC_BOOT=staging
 # export CC_ENV=staging
-# export CC_VERSION=10.3-milestone
+# export CC_VERSION=10.3-fix1
 
 export EMPOWER_USR=you@softwareag.com
 export EMPOWER_PSW=*****
@@ -348,7 +348,7 @@ On Windows:
 ```powershell
 # set CC_BOOT=staging
 # set CC_ENV=staging
-# set CC_VERSION=10.3-milestone
+# set CC_VERSION=10.3-fix1
 
 set EMPOWER_USR=you@softwareag.com
 set EMPOWER_PSW=*****
