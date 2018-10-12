@@ -321,7 +321,7 @@ See examples of CI configuration files:
 
 The fastest way to get Command Central up and running is to launch Docker container from the Docker Store.
 
-> IMPORTNT: Please see [sagdevops-hello-docker](https://github.com/SoftwareAG/sagdevops-hello-docker) for getting started instructions.
+> IMPORTANT: Please see [sagdevops-hello-docker](https://github.com/SoftwareAG/sagdevops-hello-docker) for getting started instructions.
 
 ```bash
 EMPOWER_USR=you@company.com \
