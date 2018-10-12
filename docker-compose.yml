@@ -1,14 +1,14 @@
 version: '3.2'
 services:
   cc:
-    image: ${REG}/commandcentral-server:$TAG
+    image: ${CC_REG}/commandcentral-server:$CC_TAG
     ports:
       - 8091:8091
       - 8092:8092
     environment:
       - CC_PASSWORD
   init:
-    image: ${REG}/commandcentral-client:$TAG
+    image: ${CC_REG}/commandcentral-client:$CC_TAG
     volumes:
       - ./:/src
       - ./clients/docker.properties:/root/.sag/cc.properties

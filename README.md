@@ -317,6 +317,24 @@ See examples of CI configuration files:
 * [Travis CI](.travis.yml)
 * [Appveyor CI](appveyor.yml)
 
+## Launching Command Central Docker container
+
+The fastest way to get Command Central up and running is to launch Docker container from the Docker Store.
+
+> IMPORTNT: Please see [sagdevops-hello-docker](https://github.com/SoftwareAG/sagdevops-hello-docker) for getting started instructions.
+
+```bash
+EMPOWER_USR=you@company.com \
+EMPOWER_PSW=**** \
+docker-compose run --rm init
+```
+
+To setup mirrors run:
+
+```bash
+docker-compose run --rm init mirrors
+```
+
 ## Creating staging environments on Software AG network
 
 You can setup pre-released software staging environments
@@ -325,9 +343,9 @@ if you have access to Software AG network.
 On Linux and Mac OS:
 
 ```bash
-# export CC_BOOT=staging
-# export CC_ENV=staging
-# export CC_VERSION=10.3-fix1
+export CC_BOOT=staging
+export CC_ENV=staging
+export CC_VERSION=10.3-fix1
 
 export EMPOWER_USR=you@softwareag.com
 export EMPOWER_PSW=*****
@@ -335,7 +353,7 @@ export EMPOWER_PSW=*****
 export SAG_AQUARIUS=aquarius-dae.eur.ad.sag
 export CC_INSTALLER_URL=http://aquarius-dae.eur.ad.sag/PDShare/cc
 
-# for clean boxes, bootstrap java+ant+antcc
+# for clean boxes, bootstrap antcc
 # antcc/bootstrap/install.sh
 # . ~/.bash_profile || . ~/.profile
 
@@ -346,9 +364,9 @@ ant up staging test
 On Windows:
 
 ```powershell
-# set CC_BOOT=staging
-# set CC_ENV=staging
-# set CC_VERSION=10.3-fix1
+set CC_BOOT=staging
+set CC_ENV=staging
+set CC_VERSION=10.3-fix1
 
 set EMPOWER_USR=you@softwareag.com
 set EMPOWER_PSW=*****
@@ -356,22 +374,40 @@ set EMPOWER_PSW=*****
 set SAG_AQUARIUS=aquarius-dae.eur.ad.sag
 set CC_INSTALLER_URL=http://aquarius-dae.eur.ad.sag/PDShare/cc
 
-# for clean boxes, bootstrap java+ant+antcc
+# for clean boxes, bootstrap ant+antcc
 # .\antcc\bootstrap\install.ps1
 
 ant boot
 ant up staging test
 ```
 
+On Docker:
+
+```bash
+CC_REG=daerepository03.eur.ad.sag:4443/ccdevops \
+EMPOWER_USR=you@company.com \
+EMPOWER_PSW=**** \
+CC_ENV=staging \
+docker-compose run --rm init staging
+```
+
 ## Cleanup
 
-To uninstall Command Central run:
+Uninstall Command Central.
+
+On Linux run:
 
 ```bash
 ant uninstall -Dbootstrap=YOUR_BOOT_NAME
 ```
 
 > NOTE: `uninstall` target is currently NOT supported on Windows
+
+On Docker:
+
+```bash
+docker-compose down
+```
 
 _____________
 Contact us at [TECHcommunity](mailto:technologycommunity@softwareag.com?subject=Github/SoftwareAG) if you have any questions.
