@@ -5,19 +5,19 @@ services:
     ports:
       - 8091:8091
       - 8092:8092
-    environment:
-      - CC_PASSWORD
+    # environment:
+    #   - CC_PASSWORD
   init:
     image: ${CC_REG}/commandcentral-client:$CC_TAG
     volumes:
       - ./:/src
-      - ./clients/docker.properties:/root/.sag/cc.properties
+#      - ./clients/docker.properties:/root/.sag/cc.properties
     environment:
       - CC_SERVER=cc
       - CC_ENV
-      - CC_PASSWORD
       - EMPOWER_USR
       - EMPOWER_PSW
+      # - CC_PASSWORD
     command: ant up test clean
     depends_on:
       - cc

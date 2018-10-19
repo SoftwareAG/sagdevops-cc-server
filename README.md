@@ -332,7 +332,7 @@ docker-compose run --rm init
 To setup mirrors run:
 
 ```bash
-docker-compose run --rm init mirrors
+docker-compose run --rm init ant mirrors
 ```
 
 ## Creating staging environments on Software AG network
