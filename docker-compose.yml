@@ -1,12 +1,24 @@
 version: '3.2'
+volumes:
+  cce_data: {}
+  spm_data: {}
+  cce_conf: {}
+  spm_conf: {}
+
 services:
   cc:
     image: ${CC_REG}/commandcentral-server:$CC_TAG
     ports:
       - 8091:8091
       - 8092:8092
-    # environment:
-    #   - CC_PASSWORD
+    environment:
+      - CC_PASSWORD
+    volumes:
+      - cce_conf:/opt/sagtools/profiles/CCE/configuration
+      - spm_conf:/opt/sagtools/profiles/SPM/configuration
+      - cce_data:/opt/sagtools/profiles/CCE/data
+      - spm_data:/opt/sagtools/profiles/SPM/data
+
   init:
     image: ${CC_REG}/commandcentral-client:$CC_TAG
     volumes:
@@ -17,7 +29,7 @@ services:
       - CC_ENV
       - EMPOWER_USR
       - EMPOWER_PSW
-      # - CC_PASSWORD
+      - CC_PASSWORD
     command: ant up test clean
     depends_on:
       - cc
