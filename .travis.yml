@@ -5,24 +5,18 @@ matrix:
   include:
     - os: linux
       dist: trusty
-    - os: osx
   fast_finish: true
 
 env:
   global:
     - CC_ENV=travis-ci
+    - CC_PASSWORD=manage123
 
-  # matrix:
-  #   - CC_BOOT=default
+services:
+  - docker
 
 before_install:
-  - antcc/bootstrap/install.sh
-  - . $HOME/.bash_profile
-
+  - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+  
 script:
-  - antcc boot -Daccept.license=true
-  - antcc up test
-
-cache:
-  directories:
-    - $HOME/Downloads
+  - docker-compose run --rm init
