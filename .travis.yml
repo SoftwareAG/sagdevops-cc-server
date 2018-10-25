@@ -22,4 +22,4 @@ script:
   - docker-compose run --rm init
   - docker-compose down
   - docker-compose up -d cc
-  - docker-compose run --rm init ant test -Dbuild.dir=/tmp/build
+  - docker-compose run --rm init ant waitcc test -Dbuild.dir=/tmp/build
