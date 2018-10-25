@@ -5,20 +5,20 @@
 
 	<target name="test-repos-master-prods" depends="sagenvInit" description="Verify SAG product repositories">
 		<property file="${env.properties}"/>
-		<cc command="list repository products" expectedvalues="${release}" format="csv" output="build/logs/product-repos.csv" wait="5" />
+		<cc command="list repository products" expectedvalues="${release}" format="csv" output="${build.dir}/logs/product-repos.csv" wait="5" />
 	</target>
 
 	<!-- <target name="test-repos-master-prods-listing" depends="sagenvInit" description="Verify SAG product repository listing">
 		<property file="${env.properties}"/>
-		<cc command="list repository products content webMethods-${release}" expectedvalues="SPM" format="csv" output="build/logs/products.csv" wait="240" />
+		<cc command="list repository products content webMethods-${release}" expectedvalues="SPM" format="csv" output="${build.dir}/logs/products.csv" wait="240" />
 	</target> -->
 
 	<target name="test-repos-master-fixes" depends="sagenvInit" description="Verify SAG fix repositories">
-		<cc command="list repository fixes" expectedvalues="Empower" format="csv" output="build/logs/fix-repos.csv" wait="5" />
+		<cc command="list repository fixes" expectedvalues="Empower" format="csv" output="${build.dir}/logs/fix-repos.csv" wait="5" />
 	</target>
 
 	<target name="test-repos-master-fixes-listing" depends="sagenvInit" description="Verify SAG fix repository listing">
-		<cc command="list repository fixes content Empower" expectedvalues="SPM" format="csv" output="build/logs/fixes.csv" />
+		<cc command="list repository fixes content Empower" expectedvalues="SPM" format="csv" output="${build.dir}/logs/fixes.csv" />
 	</target>
 	
 </project>
