@@ -30,6 +30,6 @@ services:
       - EMPOWER_USR
       - EMPOWER_PSW
       - CC_PASSWORD
-    command: ant up test clean -Dbuild.dir=/tmp/build
+    command: ant up test clean -Dbuild.dir=${user.home}/antcc/build
     depends_on:
       - cc
