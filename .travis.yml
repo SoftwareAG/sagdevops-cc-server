@@ -17,9 +17,19 @@ services:
 
 before_install:
   - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
-  
+
 script:
   - docker-compose run --rm init
   - docker-compose down
   - docker-compose up -d cc
   - docker-compose run --rm init ant waitcc test -Dbuild.dir=/tmp/build
+  - docker-compose down
+
+  - antcc/bootstrap/install.sh
+  - . $HOME/.bash_profile	  
+  - antcc boot -Daccept.license=true
+  - antcc up test stopcc
+
+cache:
+  directories:	
+    - $HOME/Downloads
