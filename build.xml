@@ -14,7 +14,7 @@
 		<antcall target="apply">
 			<param name="alias" value="sag-cc-repos-ga" />
 		</antcall>
-		<!-- THIS IS FOR TRUNK ONLY. Older CC, e.g. 10.3 can NOT connect to 10.4 repos! -->
+		<!-- THIS IS FOR TRUNK ONLY. Older CC, e.g. 10.3 can NOT connect to 10.5 repos! -->
 		<antcall target="apply">
 			<param name="alias" value="sag-cc-repos-dev" />
 		</antcall>

@@ -45,7 +45,7 @@ ant -version  # MUST be 1.9+
 > IMPORTANT: make sure you clone the repository with submodules by using `--recursive` switch:
 
 ```bash
-git clone --recursive -b release/103oct2018 https://github.com/SoftwareAG/sagdevops-cc-server
+git clone --recursive -b release/105oct2019 https://github.com/SoftwareAG/sagdevops-cc-server
 cd sagdevops-cc-server
 ```
 
@@ -71,7 +71,7 @@ For a customization process follow the steps below.
 Fork the project and clone it locally:
 
 ```bash
-git clone --recursive -b release/103oct2018 https://github.com/YOURCCOUNT/sagdevops-cc-server
+git clone --recursive -b release/105oct2019 https://github.com/YOURCCOUNT/sagdevops-cc-server
 cd sagdevops-cc-server
 ```
 
@@ -366,7 +366,7 @@ On Windows:
 ```powershell
 set CC_BOOT=staging
 set CC_ENV=staging
-set CC_VERSION=10.3-fix1
+set CC_VERSION=10.5-fix4
 
 set EMPOWER_USR=you@softwareag.com
 set EMPOWER_PSW=*****
