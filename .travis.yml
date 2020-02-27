@@ -11,7 +11,7 @@ env:
   global:
     - CC_ENV=travis-ci
     - CC_PASSWORD=manage123
-    - CC_TAG=10.3.0.2
+    - CC_TAG=10.5.0.0
 
 services:
   - docker
