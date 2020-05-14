@@ -21,4 +21,14 @@
 		<antcall target="mirrors" />
 		<antcall target="installers" />
 	</target>
+	
+	<target name="gateway" depends="waitcc,library,layers,tuneup,credentials,masters,licenses" description="gateway CCE setup" >
+		<antcall target="templates">
+			<param name="templates.dir" value="${custom.library.dir}"/>
+		</antcall>
+		<antcall target="mirrors" />
+		<antcall target="apply">
+			<param name="alias" value="sag-cc-ldap" />
+		</antcall>
+	</target>
 </project>
