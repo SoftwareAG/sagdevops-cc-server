@@ -22,7 +22,7 @@
 		<antcall target="installers" />
 	</target>
 	
-	<target name="gateway" depends="waitcc,library,layers,tuneup,credentials,masters,licenses" description="gateway CCE setup" >
+	<target name="gateway" depends="_prepare,waitcc,library,layers,tuneup,credentials,masters,licenses" description="gateway CCE setup" >
 		<antcall target="templates">
 			<param name="templates.dir" value="${custom.library.dir}"/>
 		</antcall>
