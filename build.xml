@@ -22,13 +22,34 @@
 		<antcall target="installers" />
 	</target>
 	
-	<target name="gateway" depends="_prepare,waitcc,library,layers,tuneup,credentials,masters,licenses" description="gateway CCE setup" >
+	<target name="gateway" depends="_prepare,waitcc,library,layers,tuneup,credentials,licenses" description="gateway CCE setup" >
 		<antcall target="templates">
 			<param name="templates.dir" value="${custom.library.dir}"/>
 		</antcall>
+		<antcall target="apply">
+			<param name="alias" value="sag-cc-repos-custom" />
+		</antcall>
+		
 		<antcall target="mirrors" />
+		
 		<antcall target="apply">
 			<param name="alias" value="sag-cc-ldap" />
 		</antcall>
+		<antcall target="apply">
+			<param name="alias" value="sag-cc-creds" />
+		</antcall>
+		<antcall target="apply">
+			<param name="alias" value="sag-cc-creds-ssh" />
+		</antcall>
+		
+		<antcall target="configuressl" />
+	</target>
+	
+	<target name="configuressl" depends="_prepare,waitcc" description="configure CCE SSL setup" >
+		<cc command="add landscape nodes alias=local url=http://${env.COMPUTERNAME}:${spm.http.port}" expectedvalues="OK" />
+		<antcall target="apply">
+			<param name="alias" value="sag-cc-secure" />
+		</antcall>	
+		<cc command="add landscape nodes alias=local url=https://${env.COMPUTERNAME}:${spm.https.port}" expectedvalues="OK" />
 	</target>
 </project>
