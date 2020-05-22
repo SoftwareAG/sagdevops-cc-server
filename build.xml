@@ -46,10 +46,11 @@
 	</target>
 	
 	<target name="configuressl" depends="_prepare,waitcc" description="configure CCE SSL setup" >
-		<cc command="add landscape nodes alias=local url=http://${env.COMPUTERNAME}:${spm.http.port}" expectedvalues="OK" />
+		<property name="env.HOSTNAME" value="${env.COMPUTERNAME}"/>
+		<cc command="add landscape nodes alias=local url=http://${env.HOSTNAME}:${spm.http.port}" expectedvalues="OK" />
 		<antcall target="apply">
 			<param name="alias" value="sag-cc-secure" />
 		</antcall>	
-		<cc command="add landscape nodes alias=local url=https://${env.COMPUTERNAME}:${spm.https.port}" expectedvalues="OK" />
+		<cc command="add landscape nodes alias=local url=https://${env.HOSTNAME}:${spm.https.port}" expectedvalues="OK" />
 	</target>
 </project>
