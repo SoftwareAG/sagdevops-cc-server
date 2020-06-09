@@ -41,8 +41,6 @@
 		<antcall target="apply">
 			<param name="alias" value="sag-cc-creds-ssh" />
 		</antcall>
-		
-		<antcall target="configuressl" />
 	</target>
 	
 	<target name="configuressl" depends="_prepare,waitcc" description="configure CCE SSL setup" >
