@@ -1,10 +1,10 @@
 alias: cc-mirrors
 description: Default registration for remote mirrors
-version: 10.1
+version: 10.7
 
 environments:
   default:
-     release: "10.1"                                  # mirror products/fixes release
+     release: "10.7"                                  # mirror products/fixes release
      mirror.spm: http://localhost:8092                # mirror hosting SPM address. HTTPS is not yet supported!
      mirror.credentials.key: DEFAULT_ADMINISTRATOR    # mirror hosting SPM credentials
      mirror.name.suffix: "_ext"                       # optional extension, can be empty

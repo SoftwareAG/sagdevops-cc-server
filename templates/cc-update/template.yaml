@@ -1,6 +1,6 @@
 alias: cc-update
 description: Install latest updates for CC
-version: 10.1
+version: 10.7
 
 environments:
   default:                      

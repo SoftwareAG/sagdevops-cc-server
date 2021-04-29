@@ -1,8 +1,8 @@
 [![Build Status](https://travis-ci.org/SoftwareAG/sagdevops-cc-server.svg?branch=master)](https://travis-ci.org/SoftwareAG/sagdevops-cc-server/builds)
 
-# Command Central 10.1 server setup
+# Command Central 10.7 server setup
 
-This project automates Command Central 10.1 setup:
+This project automates Command Central 10.7 setup:
 
 * Downloads latest fix level bootstrap installer for your platform
 * Runs bootstrap installer
@@ -16,7 +16,7 @@ You can also use this project to maintain your Command Central installation:
 
 * Pull the latest fixes and products into mirror repositories
 * Update Command Central to the latest patch level
-* Upgrade Command Central to a new release (from 9.x to 10.1)
+* Upgrade Command Central to a new release (from 9.x to 10.7)
 * Start/stop/restart Command Central
 * Check jobs status and tail the logs
 
@@ -43,17 +43,16 @@ just the client that comes with Java and Ant distribution
 For Linux:
 
 ```bash
-curl -O http://empowersdc.softwareag.com/ccinstallers/cc-def-10.1-fix1-lnxamd64.sh
-chmod +x cc-def-10.1-fix1-lnxamd64.sh
-./cc-def-10.1-fix1-lnxamd64.sh -D CLI -d ~/.sag/cli
+curl -O http://empowersdc.softwareag.com/ccinstallers/cc-def-10.7-fix1-lnxamd64.sh
+chmod +x cc-def-10.7-fix1-lnxamd64.sh
+./cc-def-10.7-fix1-lnxamd64.sh -D CLI -d ~/.sag/cli
 source ~/.bashrc
 ```
 
 For Windows:
 
-* Download [http://empowersdc.softwareag.com/ccinstallers/cc-def-10.1-fix1-w64.zip]
-* Unzip cc-def-10.1-fix1-w64.zip
-* Run (As Administrator) cc-def-10.1-release-w64 -D CLI -d %HOME%\.sag\cli
+* Download [http://empowersdc.softwareag.com/ccinstallers/cc-def-10.7-fix1-w64.bat]
+* Run (As Administrator) cc-def-10.7-fix1-w64.bat -D CLI -d %HOME%\.sag\cli
 
 Verify by running in a new shell window:
 
@@ -75,7 +74,7 @@ java -version # MUST be 1.8+
 ant -version  # MUST be 1.9+
 ```
 
-Bootstrap the latest version of Command Central 9.12:
+Bootstrap the latest version of Command Central:
 
 ```bash
 ant boot -Daccept.license=true
@@ -212,7 +211,7 @@ environments/YOUR_ENV_NAME/env.properties by setting this property:
 licenses.zip.url=http://url/to/licenses.zip
 ```
 
-IMPORTANT: the structure of the licenses.zip is not important. Command Central 10.1 will introspect
+IMPORTANT: the structure of the licenses.zip is not important. Command Central 10.7 will introspect
 the archive and import found licences with auto generated aliases.
 
 Run this command to import license files:
@@ -247,11 +246,11 @@ IMPORTANT: the structure of the images.dir folder must be the following:
 
 ```
 products\
-    my-9.12-products-lnxamd64.zip
-    my-9.12-products-w64.zip
+    my-10.7-products-lnxamd64.zip
+    my-10.5-products-w64.zip
 fixes\
-    my-9.12-fixes.zip
-    my-9.10-fixes.zip
+    my-10.7-fixes.zip
+    my-10.5-fixes.zip
 ```
 
 Run this command to upload image files:
@@ -274,7 +273,7 @@ environments/YOUR_ENV_NAME/env.properties
 by setting these properties:
 
 ```bash
-release=10.1
+release=10.7
 # from
 mirror.repo.product=webMethods-${release}
 mirror.repo.fix=Empower
@@ -320,7 +319,7 @@ The succesful test run will end with something like this:
 [au:antunit] ------------- ---------------- ---------------
 [au:antunit] Target: test-repos-master-prods took 1.103 sec
 [au:antunit] Target: test-repos-master-fixes took 1.092 sec
-[au:antunit] Target: test-repos-master-fixes-listing took 10.117 sec
+[au:antunit] Target: test-repos-master-fixes-listing took 10.717 sec
 [au:antunit] Target: test-repos-master-prods-listing took 48.337 sec
 
 BUILD SUCCESSFUL

@@ -1,6 +1,6 @@
 alias: cc-creds
 description: Default master repositories registration
-version: 10.1
+version: 10.7
 
 environments:
   default:                      
